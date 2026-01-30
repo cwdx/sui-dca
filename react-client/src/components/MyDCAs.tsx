@@ -89,10 +89,8 @@ function CountdownTimer({
   const msRemaining = targetMs - now;
   const isReady = msRemaining <= 0;
 
-  // Progress: how much of the interval has elapsed (0 to 100)
-  const startMs = targetMs - intervalMs;
-  const elapsed = now - startMs;
-  const progress = Math.min(100, Math.max(0, (elapsed / intervalMs) * 100));
+  // Progress: how much time remaining (100 to 0, runs down)
+  const progress = Math.min(100, Math.max(0, (msRemaining / intervalMs) * 100));
 
   // Format time remaining
   const formatTime = (ms: number) => {
