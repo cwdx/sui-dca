@@ -1,0 +1,235 @@
+import { bcs } from "@mysten/sui/bcs";
+import type { SuiObjectData, SuiParsedData } from "@mysten/sui/client";
+import { fromBase64 } from "@mysten/sui/utils";
+import { getTypeOrigin } from "../../../_envs";
+import {
+  decodeFromFields,
+  decodeFromFieldsWithTypes,
+  decodeFromJSONField,
+  type PhantomReified,
+  phantom,
+  type Reified,
+  type StructClass,
+  type ToField,
+  type ToTypeStr,
+} from "../../../_framework/reified";
+import {
+  composeSuiType,
+  compressSuiType,
+  type FieldsWithTypes,
+  fetchObjectBcs,
+  type SupportedSuiClient,
+} from "../../../_framework/util";
+
+/* ============================== I64 =============================== */
+
+export function isI64(type: string): boolean {
+  type = compressSuiType(type);
+  return type === `${getTypeOrigin("pyth", "i64::I64")}::i64::I64`;
+}
+
+export interface I64Fields {
+  negative: ToField<"bool">;
+  magnitude: ToField<"u64">;
+}
+
+export type I64Reified = Reified<I64, I64Fields>;
+
+export type I64JSONField = {
+  negative: boolean;
+  magnitude: string;
+};
+
+export type I64JSON = {
+  $typeName: typeof I64.$typeName;
+  $typeArgs: [];
+} & I64JSONField;
+
+/**
+ * As Move does not support negative numbers natively, we use our own internal
+ * representation.
+ *
+ * To consume these values, first call `get_is_negative()` to determine if the I64
+ * represents a negative or positive value. Then call `get_magnitude_if_positive()` or
+ * `get_magnitude_if_negative()` to get the magnitude of the number in unsigned u64 format.
+ * This API forces consumers to handle positive and negative numbers safely.
+ */
+export class I64 implements StructClass {
+  __StructClass = true as const;
+
+  static readonly $typeName: `${string}::i64::I64` = `${getTypeOrigin(
+    "pyth",
+    "i64::I64",
+  )}::i64::I64` as const;
+  static readonly $numTypeParams = 0;
+  static readonly $isPhantom = [] as const;
+
+  readonly $typeName: typeof I64.$typeName = I64.$typeName;
+  readonly $fullTypeName: `${string}::i64::I64`;
+  readonly $typeArgs: [];
+  readonly $isPhantom: typeof I64.$isPhantom = I64.$isPhantom;
+
+  readonly negative: ToField<"bool">;
+  readonly magnitude: ToField<"u64">;
+
+  private constructor(typeArgs: [], fields: I64Fields) {
+    this.$fullTypeName = composeSuiType(
+      I64.$typeName,
+      ...typeArgs,
+    ) as `${string}::i64::I64`;
+    this.$typeArgs = typeArgs;
+
+    this.negative = fields.negative;
+    this.magnitude = fields.magnitude;
+  }
+
+  static reified(): I64Reified {
+    const reifiedBcs = I64.bcs;
+    return {
+      typeName: I64.$typeName,
+      fullTypeName: composeSuiType(
+        I64.$typeName,
+        ...[],
+      ) as `${string}::i64::I64`,
+      typeArgs: [] as [],
+      isPhantom: I64.$isPhantom,
+      reifiedTypeArgs: [],
+      fromFields: (fields: Record<string, any>) => I64.fromFields(fields),
+      fromFieldsWithTypes: (item: FieldsWithTypes) =>
+        I64.fromFieldsWithTypes(item),
+      fromBcs: (data: Uint8Array) => I64.fromFields(reifiedBcs.parse(data)),
+      bcs: reifiedBcs,
+      fromJSONField: (field: any) => I64.fromJSONField(field),
+      fromJSON: (json: Record<string, any>) => I64.fromJSON(json),
+      fromSuiParsedData: (content: SuiParsedData) =>
+        I64.fromSuiParsedData(content),
+      fromSuiObjectData: (content: SuiObjectData) =>
+        I64.fromSuiObjectData(content),
+      fetch: async (client: SupportedSuiClient, id: string) =>
+        I64.fetch(client, id),
+      new: (fields: I64Fields) => {
+        return new I64([], fields);
+      },
+      kind: "StructClassReified",
+    };
+  }
+
+  static get r(): I64Reified {
+    return I64.reified();
+  }
+
+  static phantom(): PhantomReified<ToTypeStr<I64>> {
+    return phantom(I64.reified());
+  }
+
+  static get p(): PhantomReified<ToTypeStr<I64>> {
+    return I64.phantom();
+  }
+
+  private static instantiateBcs() {
+    return bcs.struct("I64", {
+      negative: bcs.bool(),
+      magnitude: bcs.u64(),
+    });
+  }
+
+  private static cachedBcs: ReturnType<typeof I64.instantiateBcs> | null = null;
+
+  static get bcs(): ReturnType<typeof I64.instantiateBcs> {
+    if (!I64.cachedBcs) {
+      I64.cachedBcs = I64.instantiateBcs();
+    }
+    return I64.cachedBcs;
+  }
+
+  static fromFields(fields: Record<string, any>): I64 {
+    return I64.reified().new({
+      negative: decodeFromFields("bool", fields.negative),
+      magnitude: decodeFromFields("u64", fields.magnitude),
+    });
+  }
+
+  static fromFieldsWithTypes(item: FieldsWithTypes): I64 {
+    if (!isI64(item.type)) {
+      throw new Error("not a I64 type");
+    }
+
+    return I64.reified().new({
+      negative: decodeFromFieldsWithTypes("bool", item.fields.negative),
+      magnitude: decodeFromFieldsWithTypes("u64", item.fields.magnitude),
+    });
+  }
+
+  static fromBcs(data: Uint8Array): I64 {
+    return I64.fromFields(I64.bcs.parse(data));
+  }
+
+  toJSONField(): I64JSONField {
+    return {
+      negative: this.negative,
+      magnitude: this.magnitude.toString(),
+    };
+  }
+
+  toJSON(): I64JSON {
+    return {
+      $typeName: this.$typeName,
+      $typeArgs: this.$typeArgs,
+      ...this.toJSONField(),
+    };
+  }
+
+  static fromJSONField(field: any): I64 {
+    return I64.reified().new({
+      negative: decodeFromJSONField("bool", field.negative),
+      magnitude: decodeFromJSONField("u64", field.magnitude),
+    });
+  }
+
+  static fromJSON(json: Record<string, any>): I64 {
+    if (json.$typeName !== I64.$typeName) {
+      throw new Error(
+        `not a I64 json object: expected '${I64.$typeName}' but got '${json.$typeName}'`,
+      );
+    }
+
+    return I64.fromJSONField(json);
+  }
+
+  static fromSuiParsedData(content: SuiParsedData): I64 {
+    if (content.dataType !== "moveObject") {
+      throw new Error("not an object");
+    }
+    if (!isI64(content.type)) {
+      throw new Error(
+        `object at ${(content.fields as any).id} is not a I64 object`,
+      );
+    }
+    return I64.fromFieldsWithTypes(content);
+  }
+
+  static fromSuiObjectData(data: SuiObjectData): I64 {
+    if (data.bcs) {
+      if (data.bcs.dataType !== "moveObject" || !isI64(data.bcs.type)) {
+        throw new Error(`object at is not a I64 object`);
+      }
+
+      return I64.fromBcs(fromBase64(data.bcs.bcsBytes));
+    }
+    if (data.content) {
+      return I64.fromSuiParsedData(data.content);
+    }
+    throw new Error(
+      "Both `bcs` and `content` fields are missing from the data. Include `showBcs` or `showContent` in the request.",
+    );
+  }
+
+  static async fetch(client: SupportedSuiClient, id: string): Promise<I64> {
+    const res = await fetchObjectBcs(client, id);
+    if (!isI64(res.type)) {
+      throw new Error(`object at id ${id} is not a I64 object`);
+    }
+
+    return I64.fromBcs(res.bcsBytes);
+  }
+}

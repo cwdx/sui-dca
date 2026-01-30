@@ -1,0 +1,51 @@
+{
+  "name": "dca-executor",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "./src/index.ts",
+  "module": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "import": "./src/index.ts",
+      "types": "./src/index.ts"
+    },
+    "./handlers/*": "./src/handlers/*.ts",
+    "./lib/*": "./src/lib/*.ts",
+    "./operators/*": "./src/operators/*.ts"
+  },
+  "scripts": {
+    "cli": "bun run src/operators/cli.ts",
+    "execute": "bun run src/operators/cli.ts",
+    "discover": "bun run src/operators/cli.ts --discover",
+    "server": "bun run src/operators/express.ts",
+    "server:gcloud": "bun run src/operators/gcloud.ts",
+    "dev": "bun run --watch src/operators/cli.ts --discover",
+    "typecheck": "tsc --noEmit",
+    "build": "bun build src/index.ts --outdir dist --target bun",
+    "build:node": "bun build src/index.ts --outdir dist --target node",
+    "codegen": "docker run --rm -v \"$(cd .. && pwd)\":/work -w /work/packages/dca sui-client-gen-image -o ../../executor-bun/src/_generated",
+    "codegen:react": "docker run --rm -v \"$(cd .. && pwd)\":/work -w /work/packages/dca sui-client-gen-image -o ../../react-client/src/_generated",
+    "codegen:build-image": "docker build -t sui-client-gen-image -f ../Dockerfile.sui-client-gen .."
+  },
+  "dependencies": {
+    "@7kprotocol/sdk-ts": "^4.0.0",
+    "@flowx-finance/sdk": "^1.15.0",
+    "@mysten/sui": "^1.45.2",
+    "@pythnetwork/pyth-sui-js": "^2.0.0",
+    "hono": "^4.11.4",
+    "p-all": "^5.0.1",
+    "p-map": "^7.0.4",
+    "p-queue": "^9.1.0",
+    "p-retry": "^7.1.1",
+    "p-settle": "^5.2.0",
+    "p-timeout": "^7.0.1"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.3.6",
+    "typescript": "^5.9.3"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

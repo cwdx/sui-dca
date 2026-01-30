@@ -1,0 +1,45 @@
+{
+  "version": "1.0.0",
+  "network": "mainnet",
+  "delegatee": {
+    "address": "0x_YOUR_DELEGATEE_ADDRESS",
+    "privateKeyEnvVar": "SUI_DELEGATEE_PRIVATE_KEY"
+  },
+  "scheduler": {
+    "checkIntervalMs": 60000,
+    "cronExpression": null,
+    "timezone": "UTC"
+  },
+  "execution": {
+    "maxRetries": 3,
+    "retryDelayMs": 5000,
+    "gasBudget": 25000000,
+    "slippageBps": 100,
+    "dryRun": true
+  },
+  "accounts": [
+    {
+      "objectId": "0x_YOUR_DCA_ACCOUNT_OBJECT_ID",
+      "inputType": "0x2::sui::SUI",
+      "outputType": "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC",
+      "adapter": "cetus",
+      "poolId": "0xcf994611fd4c48e277ce3ffd4d4364c914af2c3cbb05f7bf6facd371de688630",
+      "enabled": false,
+      "description": "Daily SUI -> USDC DCA"
+    }
+  ],
+  "healthCheck": {
+    "enabled": true,
+    "port": 8080,
+    "path": "/health"
+  },
+  "logging": {
+    "level": "info",
+    "json": false
+  },
+  "alerts": {
+    "webhookUrl": null,
+    "onFailure": true,
+    "onSuccess": false
+  }
+}

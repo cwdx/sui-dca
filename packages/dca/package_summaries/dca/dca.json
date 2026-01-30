@@ -1,0 +1,3319 @@
+{
+  "id": {
+    "address": "dca",
+    "name": "dca"
+  },
+  "doc": " @title DCA Module\n @notice DCA with GlobalConfig integration for upgradable protocol settings.\n @dev Fee and executor reward settings are snapshotted at account creation time.\n      Trade execution is PERMISSIONLESS - anyone can trigger trades when time conditions are met.\n      This enables keeper networks and removes single-point-of-failure on delegatee.",
+  "immediate_dependencies": [
+    {
+      "address": "dca",
+      "name": "config"
+    },
+    {
+      "address": "dca",
+      "name": "math"
+    },
+    {
+      "address": "dca",
+      "name": "time"
+    },
+    {
+      "address": "std",
+      "name": "option"
+    },
+    {
+      "address": "sui",
+      "name": "balance"
+    },
+    {
+      "address": "sui",
+      "name": "clock"
+    },
+    {
+      "address": "sui",
+      "name": "coin"
+    },
+    {
+      "address": "sui",
+      "name": "event"
+    },
+    {
+      "address": "sui",
+      "name": "object"
+    },
+    {
+      "address": "sui",
+      "name": "sui"
+    },
+    {
+      "address": "sui",
+      "name": "transfer"
+    },
+    {
+      "address": "sui",
+      "name": "tx_context"
+    }
+  ],
+  "attributes": [
+    {
+      "Parameterized": [
+        "allow",
+        [
+          {
+            "Name": "unused_const"
+          },
+          {
+            "Name": "unused_function"
+          },
+          {
+            "Name": "unused_use"
+          },
+          {
+            "Parameterized": [
+              "lint",
+              [
+                {
+                  "Name": "public_entry"
+                }
+              ]
+            ]
+          }
+        ]
+      ]
+    }
+  ],
+  "functions": {
+    "init_account": {
+      "source_index": 0,
+      "index": 0,
+      "doc": " Create a new DCA account with current GlobalConfig settings.\n start_time_ms: Optional start time in milliseconds. Pass 0 to start immediately (default).\n                If non-zero, the first trade can only execute after this time + interval.",
+      "attributes": [
+        {
+          "Parameterized": [
+            "lint_allow",
+            [
+              {
+                "Name": "share_owned"
+              }
+            ]
+          ]
+        }
+      ],
+      "visibility": "Public",
+      "entry": true,
+      "type_parameters": [
+        {
+          "name": "Input",
+          "constraints": []
+        },
+        {
+          "name": "Output",
+          "constraints": []
+        }
+      ],
+      "parameters": [
+        {
+          "name": "global_config",
+          "type_": {
+            "Reference": [
+              false,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "dca",
+                    "name": "config"
+                  },
+                  "name": "GlobalConfig",
+                  "type_arguments": []
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "clock",
+          "type_": {
+            "Reference": [
+              false,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "sui",
+                    "name": "clock"
+                  },
+                  "name": "Clock",
+                  "type_arguments": []
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "delegatee",
+          "type_": "address"
+        },
+        {
+          "name": "input_funds",
+          "type_": {
+            "Datatype": {
+              "module": {
+                "address": "sui",
+                "name": "coin"
+              },
+              "name": "Coin",
+              "type_arguments": [
+                {
+                  "phantom": true,
+                  "argument": {
+                    "NamedTypeParameter": "Input"
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "every",
+          "type_": "u64"
+        },
+        {
+          "name": "total_orders",
+          "type_": "u64"
+        },
+        {
+          "name": "time_scale",
+          "type_": "u8"
+        },
+        {
+          "name": "start_time_ms",
+          "type_": "u64"
+        },
+        {
+          "name": "executor_reward_funds",
+          "type_": {
+            "Reference": [
+              true,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "sui",
+                    "name": "coin"
+                  },
+                  "name": "Coin",
+                  "type_arguments": [
+                    {
+                      "phantom": true,
+                      "argument": {
+                        "Datatype": {
+                          "module": {
+                            "address": "sui",
+                            "name": "sui"
+                          },
+                          "name": "SUI",
+                          "type_arguments": []
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "ctx",
+          "type_": {
+            "Reference": [
+              true,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "sui",
+                    "name": "tx_context"
+                  },
+                  "name": "TxContext",
+                  "type_arguments": []
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "return_": []
+    },
+    "new": {
+      "source_index": 1,
+      "index": 1,
+      "doc": " Create a new DCA account.\n start_time_ms: Optional start time in milliseconds. Pass 0 to start immediately (default).\n                If non-zero, the first trade can only execute after this time + interval.",
+      "attributes": [],
+      "visibility": "Public",
+      "entry": false,
+      "type_parameters": [
+        {
+          "name": "Input",
+          "constraints": []
+        },
+        {
+          "name": "Output",
+          "constraints": []
+        }
+      ],
+      "parameters": [
+        {
+          "name": "global_config",
+          "type_": {
+            "Reference": [
+              false,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "dca",
+                    "name": "config"
+                  },
+                  "name": "GlobalConfig",
+                  "type_arguments": []
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "clock",
+          "type_": {
+            "Reference": [
+              false,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "sui",
+                    "name": "clock"
+                  },
+                  "name": "Clock",
+                  "type_arguments": []
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "delegatee",
+          "type_": "address"
+        },
+        {
+          "name": "input_funds",
+          "type_": {
+            "Datatype": {
+              "module": {
+                "address": "sui",
+                "name": "coin"
+              },
+              "name": "Coin",
+              "type_arguments": [
+                {
+                  "phantom": true,
+                  "argument": {
+                    "NamedTypeParameter": "Input"
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "every",
+          "type_": "u64"
+        },
+        {
+          "name": "total_orders",
+          "type_": "u64"
+        },
+        {
+          "name": "time_scale",
+          "type_": "u8"
+        },
+        {
+          "name": "start_time_ms",
+          "type_": "u64"
+        },
+        {
+          "name": "executor_reward_funds",
+          "type_": {
+            "Reference": [
+              true,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "sui",
+                    "name": "coin"
+                  },
+                  "name": "Coin",
+                  "type_arguments": [
+                    {
+                      "phantom": true,
+                      "argument": {
+                        "Datatype": {
+                          "module": {
+                            "address": "sui",
+                            "name": "sui"
+                          },
+                          "name": "SUI",
+                          "type_arguments": []
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "ctx",
+          "type_": {
+            "Reference": [
+              true,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "sui",
+                    "name": "tx_context"
+                  },
+                  "name": "TxContext",
+                  "type_arguments": []
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "return_": [
+        {
+          "Datatype": {
+            "module": {
+              "address": "dca",
+              "name": "dca"
+            },
+            "name": "DCA",
+            "type_arguments": [
+              {
+                "phantom": true,
+                "argument": {
+                  "NamedTypeParameter": "Input"
+                }
+              },
+              {
+                "phantom": true,
+                "argument": {
+                  "NamedTypeParameter": "Output"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "init_trade": {
+      "source_index": 2,
+      "index": 2,
+      "doc": " Initialize a trade. Restricted to friend modules (whitelisted adapters) for security.\n This prevents malicious executors from stealing user funds by not completing swaps.\n Caller gets executor reward as incentive. Fee is deducted and sent to treasury.",
+      "attributes": [],
+      "visibility": "Friend",
+      "entry": false,
+      "type_parameters": [
+        {
+          "name": "Input",
+          "constraints": []
+        },
+        {
+          "name": "Output",
+          "constraints": []
+        }
+      ],
+      "parameters": [
+        {
+          "name": "dca",
+          "type_": {
+            "Reference": [
+              true,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "dca",
+                    "name": "dca"
+                  },
+                  "name": "DCA",
+                  "type_arguments": [
+                    {
+                      "phantom": true,
+                      "argument": {
+                        "NamedTypeParameter": "Input"
+                      }
+                    },
+                    {
+                      "phantom": true,
+                      "argument": {
+                        "NamedTypeParameter": "Output"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "clock",
+          "type_": {
+            "Reference": [
+              false,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "sui",
+                    "name": "clock"
+                  },
+                  "name": "Clock",
+                  "type_arguments": []
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "ctx",
+          "type_": {
+            "Reference": [
+              true,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "sui",
+                    "name": "tx_context"
+                  },
+                  "name": "TxContext",
+                  "type_arguments": []
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "return_": [
+        {
+          "Datatype": {
+            "module": {
+              "address": "sui",
+              "name": "balance"
+            },
+            "name": "Balance",
+            "type_arguments": [
+              {
+                "phantom": true,
+                "argument": {
+                  "NamedTypeParameter": "Input"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "Datatype": {
+            "module": {
+              "address": "dca",
+              "name": "dca"
+            },
+            "name": "TradePromise",
+            "type_arguments": [
+              {
+                "phantom": true,
+                "argument": {
+                  "NamedTypeParameter": "Input"
+                }
+              },
+              {
+                "phantom": true,
+                "argument": {
+                  "NamedTypeParameter": "Output"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "resolve_trade": {
+      "source_index": 3,
+      "index": 3,
+      "doc": " Resolve a trade. Called after swap completes.\n Restricted to friend modules (whitelisted adapters) for security.\n executor_reward is validated against the snapshotted budget to prevent theft.\n output_amount is the actual amount received from the DEX (for event tracking).",
+      "attributes": [],
+      "visibility": "Friend",
+      "entry": false,
+      "type_parameters": [
+        {
+          "name": "Input",
+          "constraints": []
+        },
+        {
+          "name": "Output",
+          "constraints": []
+        }
+      ],
+      "parameters": [
+        {
+          "name": "dca",
+          "type_": {
+            "Reference": [
+              true,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "dca",
+                    "name": "dca"
+                  },
+                  "name": "DCA",
+                  "type_arguments": [
+                    {
+                      "phantom": true,
+                      "argument": {
+                        "NamedTypeParameter": "Input"
+                      }
+                    },
+                    {
+                      "phantom": true,
+                      "argument": {
+                        "NamedTypeParameter": "Output"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "fee_tracker",
+          "type_": {
+            "Reference": [
+              true,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "dca",
+                    "name": "config"
+                  },
+                  "name": "FeeTracker",
+                  "type_arguments": []
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "promise",
+          "type_": {
+            "Datatype": {
+              "module": {
+                "address": "dca",
+                "name": "dca"
+              },
+              "name": "TradePromise",
+              "type_arguments": [
+                {
+                  "phantom": true,
+                  "argument": {
+                    "NamedTypeParameter": "Input"
+                  }
+                },
+                {
+                  "phantom": true,
+                  "argument": {
+                    "NamedTypeParameter": "Output"
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "output_amount",
+          "type_": "u64"
+        },
+        {
+          "name": "executor_reward",
+          "type_": "u64"
+        },
+        {
+          "name": "ctx",
+          "type_": {
+            "Reference": [
+              true,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "sui",
+                    "name": "tx_context"
+                  },
+                  "name": "TxContext",
+                  "type_arguments": []
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "return_": [
+        {
+          "Datatype": {
+            "module": {
+              "address": "sui",
+              "name": "coin"
+            },
+            "name": "Coin",
+            "type_arguments": [
+              {
+                "phantom": true,
+                "argument": {
+                  "Datatype": {
+                    "module": {
+                      "address": "sui",
+                      "name": "sui"
+                    },
+                    "name": "SUI",
+                    "type_arguments": []
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "emit_deactivation_event": {
+      "source_index": 4,
+      "index": 4,
+      "doc": " Helper to emit deactivation event",
+      "attributes": [],
+      "visibility": "Private",
+      "entry": false,
+      "type_parameters": [
+        {
+          "name": "Input",
+          "constraints": []
+        },
+        {
+          "name": "Output",
+          "constraints": []
+        }
+      ],
+      "parameters": [
+        {
+          "name": "dca",
+          "type_": {
+            "Reference": [
+              false,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "dca",
+                    "name": "dca"
+                  },
+                  "name": "DCA",
+                  "type_arguments": [
+                    {
+                      "phantom": true,
+                      "argument": {
+                        "NamedTypeParameter": "Input"
+                      }
+                    },
+                    {
+                      "phantom": true,
+                      "argument": {
+                        "NamedTypeParameter": "Output"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "reason",
+          "type_": "u8"
+        }
+      ],
+      "return_": []
+    },
+    "fee_amount_with_bps": {
+      "source_index": 5,
+      "index": 5,
+      "doc": null,
+      "attributes": [],
+      "visibility": "Private",
+      "entry": false,
+      "type_parameters": [],
+      "parameters": [
+        {
+          "name": "gross_amount",
+          "type_": "u64"
+        },
+        {
+          "name": "fee_bps",
+          "type_": "u64"
+        }
+      ],
+      "return_": [
+        "u64"
+      ]
+    },
+    "net_trade_amount_with_bps": {
+      "source_index": 6,
+      "index": 6,
+      "doc": null,
+      "attributes": [],
+      "visibility": "Private",
+      "entry": false,
+      "type_parameters": [],
+      "parameters": [
+        {
+          "name": "gross_amount",
+          "type_": "u64"
+        },
+        {
+          "name": "fee_bps",
+          "type_": "u64"
+        }
+      ],
+      "return_": [
+        "u64"
+      ]
+    },
+    "owner": {
+      "source_index": 7,
+      "index": 7,
+      "doc": null,
+      "attributes": [],
+      "visibility": "Public",
+      "entry": false,
+      "type_parameters": [
+        {
+          "name": "Input",
+          "constraints": []
+        },
+        {
+          "name": "Output",
+          "constraints": []
+        }
+      ],
+      "parameters": [
+        {
+          "name": "dca",
+          "type_": {
+            "Reference": [
+              false,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "dca",
+                    "name": "dca"
+                  },
+                  "name": "DCA",
+                  "type_arguments": [
+                    {
+                      "phantom": true,
+                      "argument": {
+                        "NamedTypeParameter": "Input"
+                      }
+                    },
+                    {
+                      "phantom": true,
+                      "argument": {
+                        "NamedTypeParameter": "Output"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "return_": [
+        "address"
+      ]
+    },
+    "delegatee": {
+      "source_index": 8,
+      "index": 8,
+      "doc": null,
+      "attributes": [],
+      "visibility": "Public",
+      "entry": false,
+      "type_parameters": [
+        {
+          "name": "Input",
+          "constraints": []
+        },
+        {
+          "name": "Output",
+          "constraints": []
+        }
+      ],
+      "parameters": [
+        {
+          "name": "dca",
+          "type_": {
+            "Reference": [
+              false,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "dca",
+                    "name": "dca"
+                  },
+                  "name": "DCA",
+                  "type_arguments": [
+                    {
+                      "phantom": true,
+                      "argument": {
+                        "NamedTypeParameter": "Input"
+                      }
+                    },
+                    {
+                      "phantom": true,
+                      "argument": {
+                        "NamedTypeParameter": "Output"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "return_": [
+        "address"
+      ]
+    },
+    "start_time_ms": {
+      "source_index": 9,
+      "index": 9,
+      "doc": null,
+      "attributes": [],
+      "visibility": "Public",
+      "entry": false,
+      "type_parameters": [
+        {
+          "name": "Input",
+          "constraints": []
+        },
+        {
+          "name": "Output",
+          "constraints": []
+        }
+      ],
+      "parameters": [
+        {
+          "name": "dca",
+          "type_": {
+            "Reference": [
+              false,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "dca",
+                    "name": "dca"
+                  },
+                  "name": "DCA",
+                  "type_arguments": [
+                    {
+                      "phantom": true,
+                      "argument": {
+                        "NamedTypeParameter": "Input"
+                      }
+                    },
+                    {
+                      "phantom": true,
+                      "argument": {
+                        "NamedTypeParameter": "Output"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "return_": [
+        "u64"
+      ]
+    },
+    "initial_orders": {
+      "source_index": 10,
+      "index": 10,
+      "doc": null,
+      "attributes": [],
+      "visibility": "Public",
+      "entry": false,
+      "type_parameters": [
+        {
+          "name": "Input",
+          "constraints": []
+        },
+        {
+          "name": "Output",
+          "constraints": []
+        }
+      ],
+      "parameters": [
+        {
+          "name": "dca",
+          "type_": {
+            "Reference": [
+              false,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "dca",
+                    "name": "dca"
+                  },
+                  "name": "DCA",
+                  "type_arguments": [
+                    {
+                      "phantom": true,
+                      "argument": {
+                        "NamedTypeParameter": "Input"
+                      }
+                    },
+                    {
+                      "phantom": true,
+                      "argument": {
+                        "NamedTypeParameter": "Output"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "return_": [
+        "u64"
+      ]
+    },
+    "remaining_orders": {
+      "source_index": 11,
+      "index": 11,
+      "doc": null,
+      "attributes": [],
+      "visibility": "Public",
+      "entry": false,
+      "type_parameters": [
+        {
+          "name": "Input",
+          "constraints": []
+        },
+        {
+          "name": "Output",
+          "constraints": []
+        }
+      ],
+      "parameters": [
+        {
+          "name": "dca",
+          "type_": {
+            "Reference": [
+              false,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "dca",
+                    "name": "dca"
+                  },
+                  "name": "DCA",
+                  "type_arguments": [
+                    {
+                      "phantom": true,
+                      "argument": {
+                        "NamedTypeParameter": "Input"
+                      }
+                    },
+                    {
+                      "phantom": true,
+                      "argument": {
+                        "NamedTypeParameter": "Output"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "return_": [
+        "u64"
+      ]
+    },
+    "active": {
+      "source_index": 12,
+      "index": 12,
+      "doc": null,
+      "attributes": [],
+      "visibility": "Public",
+      "entry": false,
+      "type_parameters": [
+        {
+          "name": "Input",
+          "constraints": []
+        },
+        {
+          "name": "Output",
+          "constraints": []
+        }
+      ],
+      "parameters": [
+        {
+          "name": "dca",
+          "type_": {
+            "Reference": [
+              false,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "dca",
+                    "name": "dca"
+                  },
+                  "name": "DCA",
+                  "type_arguments": [
+                    {
+                      "phantom": true,
+                      "argument": {
+                        "NamedTypeParameter": "Input"
+                      }
+                    },
+                    {
+                      "phantom": true,
+                      "argument": {
+                        "NamedTypeParameter": "Output"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "return_": [
+        "bool"
+      ]
+    },
+    "fee_bps": {
+      "source_index": 13,
+      "index": 13,
+      "doc": null,
+      "attributes": [],
+      "visibility": "Public",
+      "entry": false,
+      "type_parameters": [
+        {
+          "name": "Input",
+          "constraints": []
+        },
+        {
+          "name": "Output",
+          "constraints": []
+        }
+      ],
+      "parameters": [
+        {
+          "name": "dca",
+          "type_": {
+            "Reference": [
+              false,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "dca",
+                    "name": "dca"
+                  },
+                  "name": "DCA",
+                  "type_arguments": [
+                    {
+                      "phantom": true,
+                      "argument": {
+                        "NamedTypeParameter": "Input"
+                      }
+                    },
+                    {
+                      "phantom": true,
+                      "argument": {
+                        "NamedTypeParameter": "Output"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "return_": [
+        "u64"
+      ]
+    },
+    "executor_reward_per_trade": {
+      "source_index": 14,
+      "index": 14,
+      "doc": null,
+      "attributes": [],
+      "visibility": "Public",
+      "entry": false,
+      "type_parameters": [
+        {
+          "name": "Input",
+          "constraints": []
+        },
+        {
+          "name": "Output",
+          "constraints": []
+        }
+      ],
+      "parameters": [
+        {
+          "name": "dca",
+          "type_": {
+            "Reference": [
+              false,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "dca",
+                    "name": "dca"
+                  },
+                  "name": "DCA",
+                  "type_arguments": [
+                    {
+                      "phantom": true,
+                      "argument": {
+                        "NamedTypeParameter": "Input"
+                      }
+                    },
+                    {
+                      "phantom": true,
+                      "argument": {
+                        "NamedTypeParameter": "Output"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "return_": [
+        "u64"
+      ]
+    },
+    "default_slippage_bps": {
+      "source_index": 15,
+      "index": 15,
+      "doc": null,
+      "attributes": [],
+      "visibility": "Public",
+      "entry": false,
+      "type_parameters": [
+        {
+          "name": "Input",
+          "constraints": []
+        },
+        {
+          "name": "Output",
+          "constraints": []
+        }
+      ],
+      "parameters": [
+        {
+          "name": "dca",
+          "type_": {
+            "Reference": [
+              false,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "dca",
+                    "name": "dca"
+                  },
+                  "name": "DCA",
+                  "type_arguments": [
+                    {
+                      "phantom": true,
+                      "argument": {
+                        "NamedTypeParameter": "Input"
+                      }
+                    },
+                    {
+                      "phantom": true,
+                      "argument": {
+                        "NamedTypeParameter": "Output"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "return_": [
+        "u64"
+      ]
+    },
+    "effective_slippage_bps": {
+      "source_index": 16,
+      "index": 16,
+      "doc": " Get effective slippage: custom if set, otherwise default from config",
+      "attributes": [],
+      "visibility": "Public",
+      "entry": false,
+      "type_parameters": [
+        {
+          "name": "Input",
+          "constraints": []
+        },
+        {
+          "name": "Output",
+          "constraints": []
+        }
+      ],
+      "parameters": [
+        {
+          "name": "dca",
+          "type_": {
+            "Reference": [
+              false,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "dca",
+                    "name": "dca"
+                  },
+                  "name": "DCA",
+                  "type_arguments": [
+                    {
+                      "phantom": true,
+                      "argument": {
+                        "NamedTypeParameter": "Input"
+                      }
+                    },
+                    {
+                      "phantom": true,
+                      "argument": {
+                        "NamedTypeParameter": "Output"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "return_": [
+        "u64"
+      ]
+    },
+    "trade_input": {
+      "source_index": 17,
+      "index": 17,
+      "doc": null,
+      "attributes": [],
+      "visibility": "Public",
+      "entry": false,
+      "type_parameters": [
+        {
+          "name": "Input",
+          "constraints": []
+        },
+        {
+          "name": "Output",
+          "constraints": []
+        }
+      ],
+      "parameters": [
+        {
+          "name": "promise",
+          "type_": {
+            "Reference": [
+              false,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "dca",
+                    "name": "dca"
+                  },
+                  "name": "TradePromise",
+                  "type_arguments": [
+                    {
+                      "phantom": true,
+                      "argument": {
+                        "NamedTypeParameter": "Input"
+                      }
+                    },
+                    {
+                      "phantom": true,
+                      "argument": {
+                        "NamedTypeParameter": "Output"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "return_": [
+        "u64"
+      ]
+    },
+    "trade_min_output": {
+      "source_index": 18,
+      "index": 18,
+      "doc": null,
+      "attributes": [],
+      "visibility": "Public",
+      "entry": false,
+      "type_parameters": [
+        {
+          "name": "Input",
+          "constraints": []
+        },
+        {
+          "name": "Output",
+          "constraints": []
+        }
+      ],
+      "parameters": [
+        {
+          "name": "promise",
+          "type_": {
+            "Reference": [
+              false,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "dca",
+                    "name": "dca"
+                  },
+                  "name": "TradePromise",
+                  "type_arguments": [
+                    {
+                      "phantom": true,
+                      "argument": {
+                        "NamedTypeParameter": "Input"
+                      }
+                    },
+                    {
+                      "phantom": true,
+                      "argument": {
+                        "NamedTypeParameter": "Output"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "return_": [
+        "u64"
+      ]
+    },
+    "compute_split_allocation": {
+      "source_index": 19,
+      "index": 19,
+      "doc": null,
+      "attributes": [],
+      "visibility": "Private",
+      "entry": false,
+      "type_parameters": [],
+      "parameters": [
+        {
+          "name": "input_amount",
+          "type_": "u64"
+        },
+        {
+          "name": "orders",
+          "type_": "u64"
+        }
+      ],
+      "return_": [
+        "u64"
+      ]
+    },
+    "interval_to_seconds": {
+      "source_index": 20,
+      "index": 20,
+      "doc": " Convert every + time_scale to seconds for interval validation",
+      "attributes": [],
+      "visibility": "Private",
+      "entry": false,
+      "type_parameters": [],
+      "parameters": [
+        {
+          "name": "every",
+          "type_": "u64"
+        },
+        {
+          "name": "time_scale",
+          "type_": "u8"
+        }
+      ],
+      "return_": [
+        "u64"
+      ]
+    },
+    "get_min_output_amount": {
+      "source_index": 21,
+      "index": 21,
+      "doc": null,
+      "attributes": [],
+      "visibility": "Private",
+      "entry": false,
+      "type_parameters": [
+        {
+          "name": "Input",
+          "constraints": []
+        },
+        {
+          "name": "Output",
+          "constraints": []
+        }
+      ],
+      "parameters": [
+        {
+          "name": "dca",
+          "type_": {
+            "Reference": [
+              false,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "dca",
+                    "name": "dca"
+                  },
+                  "name": "DCA",
+                  "type_arguments": [
+                    {
+                      "phantom": true,
+                      "argument": {
+                        "NamedTypeParameter": "Input"
+                      }
+                    },
+                    {
+                      "phantom": true,
+                      "argument": {
+                        "NamedTypeParameter": "Output"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "input_amount",
+          "type_": "u64"
+        }
+      ],
+      "return_": [
+        "u64"
+      ]
+    },
+    "set_inactive_and_reset": {
+      "source_index": 22,
+      "index": 22,
+      "doc": null,
+      "attributes": [],
+      "visibility": "Private",
+      "entry": false,
+      "type_parameters": [
+        {
+          "name": "Input",
+          "constraints": []
+        },
+        {
+          "name": "Output",
+          "constraints": []
+        }
+      ],
+      "parameters": [
+        {
+          "name": "dca",
+          "type_": {
+            "Reference": [
+              true,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "dca",
+                    "name": "dca"
+                  },
+                  "name": "DCA",
+                  "type_arguments": [
+                    {
+                      "phantom": true,
+                      "argument": {
+                        "NamedTypeParameter": "Input"
+                      }
+                    },
+                    {
+                      "phantom": true,
+                      "argument": {
+                        "NamedTypeParameter": "Output"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "return_": []
+    },
+    "assert_active": {
+      "source_index": 23,
+      "index": 23,
+      "doc": null,
+      "attributes": [],
+      "visibility": "Private",
+      "entry": false,
+      "type_parameters": [
+        {
+          "name": "Input",
+          "constraints": []
+        },
+        {
+          "name": "Output",
+          "constraints": []
+        }
+      ],
+      "parameters": [
+        {
+          "name": "dca",
+          "type_": {
+            "Reference": [
+              false,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "dca",
+                    "name": "dca"
+                  },
+                  "name": "DCA",
+                  "type_arguments": [
+                    {
+                      "phantom": true,
+                      "argument": {
+                        "NamedTypeParameter": "Input"
+                      }
+                    },
+                    {
+                      "phantom": true,
+                      "argument": {
+                        "NamedTypeParameter": "Output"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "return_": []
+    },
+    "assert_delegatee": {
+      "source_index": 24,
+      "index": 24,
+      "doc": null,
+      "attributes": [],
+      "visibility": "Private",
+      "entry": false,
+      "type_parameters": [
+        {
+          "name": "Input",
+          "constraints": []
+        },
+        {
+          "name": "Output",
+          "constraints": []
+        }
+      ],
+      "parameters": [
+        {
+          "name": "dca",
+          "type_": {
+            "Reference": [
+              false,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "dca",
+                    "name": "dca"
+                  },
+                  "name": "DCA",
+                  "type_arguments": [
+                    {
+                      "phantom": true,
+                      "argument": {
+                        "NamedTypeParameter": "Input"
+                      }
+                    },
+                    {
+                      "phantom": true,
+                      "argument": {
+                        "NamedTypeParameter": "Output"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "ctx",
+          "type_": {
+            "Reference": [
+              false,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "sui",
+                    "name": "tx_context"
+                  },
+                  "name": "TxContext",
+                  "type_arguments": []
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "return_": []
+    },
+    "assert_time_scale": {
+      "source_index": 25,
+      "index": 25,
+      "doc": null,
+      "attributes": [],
+      "visibility": "Private",
+      "entry": false,
+      "type_parameters": [],
+      "parameters": [
+        {
+          "name": "time_scale",
+          "type_": "u8"
+        }
+      ],
+      "return_": []
+    },
+    "assert_every": {
+      "source_index": 26,
+      "index": 26,
+      "doc": null,
+      "attributes": [],
+      "visibility": "Private",
+      "entry": false,
+      "type_parameters": [],
+      "parameters": [
+        {
+          "name": "every",
+          "type_": "u64"
+        },
+        {
+          "name": "time_scale",
+          "type_": "u8"
+        }
+      ],
+      "return_": []
+    },
+    "assert_time": {
+      "source_index": 27,
+      "index": 27,
+      "doc": null,
+      "attributes": [],
+      "visibility": "Private",
+      "entry": false,
+      "type_parameters": [],
+      "parameters": [
+        {
+          "name": "current_ts",
+          "type_": "u64"
+        },
+        {
+          "name": "last_ts",
+          "type_": "u64"
+        },
+        {
+          "name": "every",
+          "type_": "u64"
+        },
+        {
+          "name": "time_scale",
+          "type_": "u8"
+        }
+      ],
+      "return_": []
+    },
+    "assert_max_price_via_output": {
+      "source_index": 28,
+      "index": 28,
+      "doc": null,
+      "attributes": [],
+      "visibility": "Public",
+      "entry": false,
+      "type_parameters": [
+        {
+          "name": "Input",
+          "constraints": []
+        },
+        {
+          "name": "Output",
+          "constraints": []
+        }
+      ],
+      "parameters": [
+        {
+          "name": "output_amount",
+          "type_": "u64"
+        },
+        {
+          "name": "promise",
+          "type_": {
+            "Reference": [
+              false,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "dca",
+                    "name": "dca"
+                  },
+                  "name": "TradePromise",
+                  "type_arguments": [
+                    {
+                      "phantom": true,
+                      "argument": {
+                        "NamedTypeParameter": "Input"
+                      }
+                    },
+                    {
+                      "phantom": true,
+                      "argument": {
+                        "NamedTypeParameter": "Output"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "return_": []
+    },
+    "assert_owner": {
+      "source_index": 29,
+      "index": 29,
+      "doc": null,
+      "attributes": [],
+      "visibility": "Private",
+      "entry": false,
+      "type_parameters": [
+        {
+          "name": "Input",
+          "constraints": []
+        },
+        {
+          "name": "Output",
+          "constraints": []
+        }
+      ],
+      "parameters": [
+        {
+          "name": "dca",
+          "type_": {
+            "Reference": [
+              false,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "dca",
+                    "name": "dca"
+                  },
+                  "name": "DCA",
+                  "type_arguments": [
+                    {
+                      "phantom": true,
+                      "argument": {
+                        "NamedTypeParameter": "Input"
+                      }
+                    },
+                    {
+                      "phantom": true,
+                      "argument": {
+                        "NamedTypeParameter": "Output"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "ctx",
+          "type_": {
+            "Reference": [
+              false,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "sui",
+                    "name": "tx_context"
+                  },
+                  "name": "TxContext",
+                  "type_arguments": []
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "return_": []
+    },
+    "assert_owner_or_delegatee": {
+      "source_index": 30,
+      "index": 30,
+      "doc": null,
+      "attributes": [],
+      "visibility": "Private",
+      "entry": false,
+      "type_parameters": [
+        {
+          "name": "Input",
+          "constraints": []
+        },
+        {
+          "name": "Output",
+          "constraints": []
+        }
+      ],
+      "parameters": [
+        {
+          "name": "dca",
+          "type_": {
+            "Reference": [
+              false,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "dca",
+                    "name": "dca"
+                  },
+                  "name": "DCA",
+                  "type_arguments": [
+                    {
+                      "phantom": true,
+                      "argument": {
+                        "NamedTypeParameter": "Input"
+                      }
+                    },
+                    {
+                      "phantom": true,
+                      "argument": {
+                        "NamedTypeParameter": "Output"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "ctx",
+          "type_": {
+            "Reference": [
+              false,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "sui",
+                    "name": "tx_context"
+                  },
+                  "name": "TxContext",
+                  "type_arguments": []
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "return_": []
+    },
+    "set_delegatee": {
+      "source_index": 31,
+      "index": 31,
+      "doc": " Owner can change the delegatee address",
+      "attributes": [],
+      "visibility": "Public",
+      "entry": true,
+      "type_parameters": [
+        {
+          "name": "Input",
+          "constraints": []
+        },
+        {
+          "name": "Output",
+          "constraints": []
+        }
+      ],
+      "parameters": [
+        {
+          "name": "dca",
+          "type_": {
+            "Reference": [
+              true,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "dca",
+                    "name": "dca"
+                  },
+                  "name": "DCA",
+                  "type_arguments": [
+                    {
+                      "phantom": true,
+                      "argument": {
+                        "NamedTypeParameter": "Input"
+                      }
+                    },
+                    {
+                      "phantom": true,
+                      "argument": {
+                        "NamedTypeParameter": "Output"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "new_delegatee",
+          "type_": "address"
+        },
+        {
+          "name": "ctx",
+          "type_": {
+            "Reference": [
+              false,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "sui",
+                    "name": "tx_context"
+                  },
+                  "name": "TxContext",
+                  "type_arguments": []
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "return_": []
+    },
+    "set_slippage": {
+      "source_index": 32,
+      "index": 32,
+      "doc": " Owner can set custom slippage tolerance (overrides default)\n Slippage must be within protocol's max_slippage_bps limit",
+      "attributes": [],
+      "visibility": "Public",
+      "entry": true,
+      "type_parameters": [
+        {
+          "name": "Input",
+          "constraints": []
+        },
+        {
+          "name": "Output",
+          "constraints": []
+        }
+      ],
+      "parameters": [
+        {
+          "name": "dca",
+          "type_": {
+            "Reference": [
+              true,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "dca",
+                    "name": "dca"
+                  },
+                  "name": "DCA",
+                  "type_arguments": [
+                    {
+                      "phantom": true,
+                      "argument": {
+                        "NamedTypeParameter": "Input"
+                      }
+                    },
+                    {
+                      "phantom": true,
+                      "argument": {
+                        "NamedTypeParameter": "Output"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "global_config",
+          "type_": {
+            "Reference": [
+              false,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "dca",
+                    "name": "config"
+                  },
+                  "name": "GlobalConfig",
+                  "type_arguments": []
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "slippage_bps",
+          "type_": "u64"
+        },
+        {
+          "name": "ctx",
+          "type_": {
+            "Reference": [
+              false,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "sui",
+                    "name": "tx_context"
+                  },
+                  "name": "TxContext",
+                  "type_arguments": []
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "return_": []
+    },
+    "reset_slippage": {
+      "source_index": 33,
+      "index": 33,
+      "doc": " Owner can reset slippage to use default from config",
+      "attributes": [],
+      "visibility": "Public",
+      "entry": true,
+      "type_parameters": [
+        {
+          "name": "Input",
+          "constraints": []
+        },
+        {
+          "name": "Output",
+          "constraints": []
+        }
+      ],
+      "parameters": [
+        {
+          "name": "dca",
+          "type_": {
+            "Reference": [
+              true,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "dca",
+                    "name": "dca"
+                  },
+                  "name": "DCA",
+                  "type_arguments": [
+                    {
+                      "phantom": true,
+                      "argument": {
+                        "NamedTypeParameter": "Input"
+                      }
+                    },
+                    {
+                      "phantom": true,
+                      "argument": {
+                        "NamedTypeParameter": "Output"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "ctx",
+          "type_": {
+            "Reference": [
+              false,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "sui",
+                    "name": "tx_context"
+                  },
+                  "name": "TxContext",
+                  "type_arguments": []
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "return_": []
+    },
+    "set_inactive": {
+      "source_index": 34,
+      "index": 34,
+      "doc": " Owner can pause their DCA account at any time",
+      "attributes": [],
+      "visibility": "Public",
+      "entry": true,
+      "type_parameters": [
+        {
+          "name": "Input",
+          "constraints": []
+        },
+        {
+          "name": "Output",
+          "constraints": []
+        }
+      ],
+      "parameters": [
+        {
+          "name": "dca",
+          "type_": {
+            "Reference": [
+              true,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "dca",
+                    "name": "dca"
+                  },
+                  "name": "DCA",
+                  "type_arguments": [
+                    {
+                      "phantom": true,
+                      "argument": {
+                        "NamedTypeParameter": "Input"
+                      }
+                    },
+                    {
+                      "phantom": true,
+                      "argument": {
+                        "NamedTypeParameter": "Output"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "ctx",
+          "type_": {
+            "Reference": [
+              false,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "sui",
+                    "name": "tx_context"
+                  },
+                  "name": "TxContext",
+                  "type_arguments": []
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "return_": []
+    },
+    "reactivate_as_owner": {
+      "source_index": 35,
+      "index": 35,
+      "doc": " Owner can reactivate their DCA account if it has funds and remaining orders",
+      "attributes": [],
+      "visibility": "Public",
+      "entry": true,
+      "type_parameters": [
+        {
+          "name": "Input",
+          "constraints": []
+        },
+        {
+          "name": "Output",
+          "constraints": []
+        }
+      ],
+      "parameters": [
+        {
+          "name": "dca",
+          "type_": {
+            "Reference": [
+              true,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "dca",
+                    "name": "dca"
+                  },
+                  "name": "DCA",
+                  "type_arguments": [
+                    {
+                      "phantom": true,
+                      "argument": {
+                        "NamedTypeParameter": "Input"
+                      }
+                    },
+                    {
+                      "phantom": true,
+                      "argument": {
+                        "NamedTypeParameter": "Output"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "ctx",
+          "type_": {
+            "Reference": [
+              false,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "sui",
+                    "name": "tx_context"
+                  },
+                  "name": "TxContext",
+                  "type_arguments": []
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "return_": []
+    },
+    "redeem_funds_and_deactivate": {
+      "source_index": 36,
+      "index": 36,
+      "doc": " Owner can withdraw all funds and deactivate - effectively canceling the DCA",
+      "attributes": [],
+      "visibility": "Public",
+      "entry": true,
+      "type_parameters": [
+        {
+          "name": "Input",
+          "constraints": []
+        },
+        {
+          "name": "Output",
+          "constraints": []
+        }
+      ],
+      "parameters": [
+        {
+          "name": "dca",
+          "type_": {
+            "Reference": [
+              true,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "dca",
+                    "name": "dca"
+                  },
+                  "name": "DCA",
+                  "type_arguments": [
+                    {
+                      "phantom": true,
+                      "argument": {
+                        "NamedTypeParameter": "Input"
+                      }
+                    },
+                    {
+                      "phantom": true,
+                      "argument": {
+                        "NamedTypeParameter": "Output"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "ctx",
+          "type_": {
+            "Reference": [
+              true,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "sui",
+                    "name": "tx_context"
+                  },
+                  "name": "TxContext",
+                  "type_arguments": []
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "return_": []
+    },
+    "withdraw_input": {
+      "source_index": 37,
+      "index": 37,
+      "doc": " Owner can partially withdraw input funds (reducing remaining orders proportionally)",
+      "attributes": [],
+      "visibility": "Public",
+      "entry": true,
+      "type_parameters": [
+        {
+          "name": "Input",
+          "constraints": []
+        },
+        {
+          "name": "Output",
+          "constraints": []
+        }
+      ],
+      "parameters": [
+        {
+          "name": "dca",
+          "type_": {
+            "Reference": [
+              true,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "dca",
+                    "name": "dca"
+                  },
+                  "name": "DCA",
+                  "type_arguments": [
+                    {
+                      "phantom": true,
+                      "argument": {
+                        "NamedTypeParameter": "Input"
+                      }
+                    },
+                    {
+                      "phantom": true,
+                      "argument": {
+                        "NamedTypeParameter": "Output"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "amount",
+          "type_": "u64"
+        },
+        {
+          "name": "decrease_orders",
+          "type_": "u64"
+        },
+        {
+          "name": "ctx",
+          "type_": {
+            "Reference": [
+              true,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "sui",
+                    "name": "tx_context"
+                  },
+                  "name": "TxContext",
+                  "type_arguments": []
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "return_": []
+    },
+    "add_executor_reward": {
+      "source_index": 38,
+      "index": 38,
+      "doc": " Owner can add more executor reward balance to the account",
+      "attributes": [],
+      "visibility": "Public",
+      "entry": true,
+      "type_parameters": [
+        {
+          "name": "Input",
+          "constraints": []
+        },
+        {
+          "name": "Output",
+          "constraints": []
+        }
+      ],
+      "parameters": [
+        {
+          "name": "dca",
+          "type_": {
+            "Reference": [
+              true,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "dca",
+                    "name": "dca"
+                  },
+                  "name": "DCA",
+                  "type_arguments": [
+                    {
+                      "phantom": true,
+                      "argument": {
+                        "NamedTypeParameter": "Input"
+                      }
+                    },
+                    {
+                      "phantom": true,
+                      "argument": {
+                        "NamedTypeParameter": "Output"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "reward_funds",
+          "type_": {
+            "Datatype": {
+              "module": {
+                "address": "sui",
+                "name": "coin"
+              },
+              "name": "Coin",
+              "type_arguments": [
+                {
+                  "phantom": true,
+                  "argument": {
+                    "Datatype": {
+                      "module": {
+                        "address": "sui",
+                        "name": "sui"
+                      },
+                      "name": "SUI",
+                      "type_arguments": []
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "return_": []
+    },
+    "check_version_and_upgrade": {
+      "source_index": 39,
+      "index": 39,
+      "doc": null,
+      "attributes": [],
+      "visibility": "Private",
+      "entry": false,
+      "type_parameters": [
+        {
+          "name": "Input",
+          "constraints": []
+        },
+        {
+          "name": "Output",
+          "constraints": []
+        }
+      ],
+      "parameters": [
+        {
+          "name": "dca",
+          "type_": {
+            "Reference": [
+              true,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "dca",
+                    "name": "dca"
+                  },
+                  "name": "DCA",
+                  "type_arguments": [
+                    {
+                      "phantom": true,
+                      "argument": {
+                        "NamedTypeParameter": "Input"
+                      }
+                    },
+                    {
+                      "phantom": true,
+                      "argument": {
+                        "NamedTypeParameter": "Output"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "return_": []
+    }
+  },
+  "structs": {
+    "TradePromise": {
+      "index": 0,
+      "doc": null,
+      "attributes": [],
+      "abilities": [
+        "Drop"
+      ],
+      "type_parameters": [
+        {
+          "phantom": true,
+          "name": "Input",
+          "constraints": []
+        },
+        {
+          "phantom": true,
+          "name": "Output",
+          "constraints": []
+        }
+      ],
+      "fields": {
+        "positional_fields": false,
+        "fields": {
+          "input": {
+            "index": 0,
+            "doc": null,
+            "type_": "u64"
+          },
+          "min_output": {
+            "index": 1,
+            "doc": null,
+            "type_": "u64"
+          },
+          "dca_id": {
+            "index": 2,
+            "doc": null,
+            "type_": {
+              "Datatype": {
+                "module": {
+                  "address": "sui",
+                  "name": "object"
+                },
+                "name": "ID",
+                "type_arguments": []
+              }
+            }
+          }
+        }
+      }
+    },
+    "Price": {
+      "index": 1,
+      "doc": null,
+      "attributes": [],
+      "abilities": [
+        "Copy",
+        "Drop",
+        "Store"
+      ],
+      "type_parameters": [],
+      "fields": {
+        "positional_fields": false,
+        "fields": {
+          "base_val": {
+            "index": 0,
+            "doc": null,
+            "type_": "u64"
+          },
+          "quote_val": {
+            "index": 1,
+            "doc": null,
+            "type_": "u64"
+          }
+        }
+      }
+    },
+    "TradeParams": {
+      "index": 2,
+      "doc": null,
+      "attributes": [],
+      "abilities": [
+        "Copy",
+        "Drop",
+        "Store"
+      ],
+      "type_parameters": [],
+      "fields": {
+        "positional_fields": false,
+        "fields": {
+          "min_price": {
+            "index": 0,
+            "doc": null,
+            "type_": {
+              "Datatype": {
+                "module": {
+                  "address": "std",
+                  "name": "option"
+                },
+                "name": "Option",
+                "type_arguments": [
+                  {
+                    "phantom": false,
+                    "argument": {
+                      "Datatype": {
+                        "module": {
+                          "address": "dca",
+                          "name": "dca"
+                        },
+                        "name": "Price",
+                        "type_arguments": []
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "max_price": {
+            "index": 1,
+            "doc": null,
+            "type_": {
+              "Datatype": {
+                "module": {
+                  "address": "std",
+                  "name": "option"
+                },
+                "name": "Option",
+                "type_arguments": [
+                  {
+                    "phantom": false,
+                    "argument": {
+                      "Datatype": {
+                        "module": {
+                          "address": "dca",
+                          "name": "dca"
+                        },
+                        "name": "Price",
+                        "type_arguments": []
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "slippage_bps": {
+            "index": 2,
+            "doc": " Custom slippage tolerance in basis points (overrides default if set)",
+            "type_": {
+              "Datatype": {
+                "module": {
+                  "address": "std",
+                  "name": "option"
+                },
+                "name": "Option",
+                "type_arguments": [
+                  {
+                    "phantom": false,
+                    "argument": "u64"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "DCA": {
+      "index": 3,
+      "doc": " DCA account with ConfigSnapshot",
+      "attributes": [],
+      "abilities": [
+        "Key",
+        "Store"
+      ],
+      "type_parameters": [
+        {
+          "phantom": true,
+          "name": "Input",
+          "constraints": []
+        },
+        {
+          "phantom": true,
+          "name": "Output",
+          "constraints": []
+        }
+      ],
+      "fields": {
+        "positional_fields": false,
+        "fields": {
+          "id": {
+            "index": 0,
+            "doc": null,
+            "type_": {
+              "Datatype": {
+                "module": {
+                  "address": "sui",
+                  "name": "object"
+                },
+                "name": "UID",
+                "type_arguments": []
+              }
+            }
+          },
+          "version": {
+            "index": 1,
+            "doc": null,
+            "type_": "u64"
+          },
+          "owner": {
+            "index": 2,
+            "doc": null,
+            "type_": "address"
+          },
+          "delegatee": {
+            "index": 3,
+            "doc": null,
+            "type_": "address"
+          },
+          "start_time_ms": {
+            "index": 4,
+            "doc": null,
+            "type_": "u64"
+          },
+          "last_time_ms": {
+            "index": 5,
+            "doc": null,
+            "type_": "u64"
+          },
+          "every": {
+            "index": 6,
+            "doc": null,
+            "type_": "u64"
+          },
+          "initial_orders": {
+            "index": 7,
+            "doc": " Original total orders (for order_number calculation)",
+            "type_": "u64"
+          },
+          "remaining_orders": {
+            "index": 8,
+            "doc": null,
+            "type_": "u64"
+          },
+          "time_scale": {
+            "index": 9,
+            "doc": null,
+            "type_": "u8"
+          },
+          "input_balance": {
+            "index": 10,
+            "doc": null,
+            "type_": {
+              "Datatype": {
+                "module": {
+                  "address": "sui",
+                  "name": "balance"
+                },
+                "name": "Balance",
+                "type_arguments": [
+                  {
+                    "phantom": true,
+                    "argument": {
+                      "NamedTypeParameter": "Input"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "split_allocation": {
+            "index": 11,
+            "doc": null,
+            "type_": "u64"
+          },
+          "trade_params": {
+            "index": 12,
+            "doc": null,
+            "type_": {
+              "Datatype": {
+                "module": {
+                  "address": "dca",
+                  "name": "dca"
+                },
+                "name": "TradeParams",
+                "type_arguments": []
+              }
+            }
+          },
+          "active": {
+            "index": 13,
+            "doc": null,
+            "type_": "bool"
+          },
+          "executor_reward_balance": {
+            "index": 14,
+            "doc": " SUI balance for executor rewards",
+            "type_": {
+              "Datatype": {
+                "module": {
+                  "address": "sui",
+                  "name": "balance"
+                },
+                "name": "Balance",
+                "type_arguments": [
+                  {
+                    "phantom": true,
+                    "argument": {
+                      "Datatype": {
+                        "module": {
+                          "address": "sui",
+                          "name": "sui"
+                        },
+                        "name": "SUI",
+                        "type_arguments": []
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "config_snapshot": {
+            "index": 15,
+            "doc": " Snapshotted config at account creation",
+            "type_": {
+              "Datatype": {
+                "module": {
+                  "address": "dca",
+                  "name": "config"
+                },
+                "name": "ConfigSnapshot",
+                "type_arguments": []
+              }
+            }
+          }
+        }
+      }
+    },
+    "DCACreatedEvent": {
+      "index": 4,
+      "doc": " Emitted when a new DCA account is created",
+      "attributes": [],
+      "abilities": [
+        "Copy",
+        "Drop"
+      ],
+      "type_parameters": [],
+      "fields": {
+        "positional_fields": false,
+        "fields": {
+          "id": {
+            "index": 0,
+            "doc": null,
+            "type_": {
+              "Datatype": {
+                "module": {
+                  "address": "sui",
+                  "name": "object"
+                },
+                "name": "ID",
+                "type_arguments": []
+              }
+            }
+          },
+          "owner": {
+            "index": 1,
+            "doc": null,
+            "type_": "address"
+          },
+          "delegatee": {
+            "index": 2,
+            "doc": null,
+            "type_": "address"
+          },
+          "total_orders": {
+            "index": 3,
+            "doc": " Total number of orders to execute",
+            "type_": "u64"
+          },
+          "input_amount": {
+            "index": 4,
+            "doc": " Total input amount deposited",
+            "type_": "u64"
+          },
+          "split_allocation": {
+            "index": 5,
+            "doc": " Amount allocated per trade (before fees)",
+            "type_": "u64"
+          },
+          "every": {
+            "index": 6,
+            "doc": " Interval between trades",
+            "type_": "u64"
+          },
+          "time_scale": {
+            "index": 7,
+            "doc": " Time scale (0=seconds, 1=minutes, 2=hours, 3=days, 4=weeks, 5=months)",
+            "type_": "u8"
+          },
+          "fee_bps": {
+            "index": 8,
+            "doc": " Fee rate in basis points (snapshotted at creation)",
+            "type_": "u64"
+          },
+          "executor_reward_per_trade": {
+            "index": 9,
+            "doc": " Executor reward per trade in MIST (snapshotted at creation)",
+            "type_": "u64"
+          },
+          "default_slippage_bps": {
+            "index": 10,
+            "doc": " Default slippage tolerance in basis points",
+            "type_": "u64"
+          },
+          "start_time_ms": {
+            "index": 11,
+            "doc": " Account start timestamp in milliseconds",
+            "type_": "u64"
+          }
+        }
+      }
+    },
+    "TradeInitiatedEvent": {
+      "index": 5,
+      "doc": " Emitted when init_trade is called (trade initiated)",
+      "attributes": [],
+      "abilities": [
+        "Copy",
+        "Drop"
+      ],
+      "type_parameters": [],
+      "fields": {
+        "positional_fields": false,
+        "fields": {
+          "dca_id": {
+            "index": 0,
+            "doc": null,
+            "type_": {
+              "Datatype": {
+                "module": {
+                  "address": "sui",
+                  "name": "object"
+                },
+                "name": "ID",
+                "type_arguments": []
+              }
+            }
+          },
+          "executor": {
+            "index": 1,
+            "doc": " Address that triggered the trade (for keeper tracking)",
+            "type_": "address"
+          },
+          "input_amount": {
+            "index": 2,
+            "doc": " Input amount sent to DEX (after fee deduction)",
+            "type_": "u64"
+          },
+          "fee_amount": {
+            "index": 3,
+            "doc": " Fee amount deducted and sent to treasury",
+            "type_": "u64"
+          },
+          "remaining_orders": {
+            "index": 4,
+            "doc": " Orders remaining after this trade",
+            "type_": "u64"
+          },
+          "order_number": {
+            "index": 5,
+            "doc": " Which order number this is (1-indexed)",
+            "type_": "u64"
+          },
+          "min_output": {
+            "index": 6,
+            "doc": " Minimum output expected (for slippage protection)",
+            "type_": "u64"
+          }
+        }
+      }
+    },
+    "TradeCompletedEvent": {
+      "index": 6,
+      "doc": " Emitted when resolve_trade completes (trade finalized)",
+      "attributes": [],
+      "abilities": [
+        "Copy",
+        "Drop"
+      ],
+      "type_parameters": [],
+      "fields": {
+        "positional_fields": false,
+        "fields": {
+          "dca_id": {
+            "index": 0,
+            "doc": null,
+            "type_": {
+              "Datatype": {
+                "module": {
+                  "address": "sui",
+                  "name": "object"
+                },
+                "name": "ID",
+                "type_arguments": []
+              }
+            }
+          },
+          "executor": {
+            "index": 1,
+            "doc": " Address that executed the trade",
+            "type_": "address"
+          },
+          "output_amount": {
+            "index": 2,
+            "doc": " Output amount received from DEX",
+            "type_": "u64"
+          },
+          "executor_reward": {
+            "index": 3,
+            "doc": " Executor reward claimed",
+            "type_": "u64"
+          },
+          "active": {
+            "index": 4,
+            "doc": " Whether the DCA account is still active",
+            "type_": "bool"
+          }
+        }
+      }
+    },
+    "DCADeactivatedEvent": {
+      "index": 7,
+      "doc": " Emitted when a DCA account is deactivated",
+      "attributes": [],
+      "abilities": [
+        "Copy",
+        "Drop"
+      ],
+      "type_parameters": [],
+      "fields": {
+        "positional_fields": false,
+        "fields": {
+          "dca_id": {
+            "index": 0,
+            "doc": null,
+            "type_": {
+              "Datatype": {
+                "module": {
+                  "address": "sui",
+                  "name": "object"
+                },
+                "name": "ID",
+                "type_arguments": []
+              }
+            }
+          },
+          "reason": {
+            "index": 1,
+            "doc": " 0=completed_all_orders, 1=owner_deactivated, 2=insufficient_funds",
+            "type_": "u8"
+          },
+          "remaining_orders": {
+            "index": 2,
+            "doc": " Remaining orders at deactivation",
+            "type_": "u64"
+          },
+          "remaining_input": {
+            "index": 3,
+            "doc": " Remaining input balance",
+            "type_": "u64"
+          },
+          "remaining_executor_reward": {
+            "index": 4,
+            "doc": " Remaining executor reward balance",
+            "type_": "u64"
+          }
+        }
+      }
+    },
+    "DelegateeUpdatedEvent": {
+      "index": 8,
+      "doc": " Emitted when delegatee is changed",
+      "attributes": [],
+      "abilities": [
+        "Copy",
+        "Drop"
+      ],
+      "type_parameters": [],
+      "fields": {
+        "positional_fields": false,
+        "fields": {
+          "dca_id": {
+            "index": 0,
+            "doc": null,
+            "type_": {
+              "Datatype": {
+                "module": {
+                  "address": "sui",
+                  "name": "object"
+                },
+                "name": "ID",
+                "type_arguments": []
+              }
+            }
+          },
+          "old_delegatee": {
+            "index": 1,
+            "doc": null,
+            "type_": "address"
+          },
+          "new_delegatee": {
+            "index": 2,
+            "doc": null,
+            "type_": "address"
+          }
+        }
+      }
+    },
+    "SlippageUpdatedEvent": {
+      "index": 9,
+      "doc": " Emitted when slippage tolerance is updated",
+      "attributes": [],
+      "abilities": [
+        "Copy",
+        "Drop"
+      ],
+      "type_parameters": [],
+      "fields": {
+        "positional_fields": false,
+        "fields": {
+          "dca_id": {
+            "index": 0,
+            "doc": null,
+            "type_": {
+              "Datatype": {
+                "module": {
+                  "address": "sui",
+                  "name": "object"
+                },
+                "name": "ID",
+                "type_arguments": []
+              }
+            }
+          },
+          "old_slippage_bps": {
+            "index": 1,
+            "doc": null,
+            "type_": {
+              "Datatype": {
+                "module": {
+                  "address": "std",
+                  "name": "option"
+                },
+                "name": "Option",
+                "type_arguments": [
+                  {
+                    "phantom": false,
+                    "argument": "u64"
+                  }
+                ]
+              }
+            }
+          },
+          "new_slippage_bps": {
+            "index": 2,
+            "doc": null,
+            "type_": {
+              "Datatype": {
+                "module": {
+                  "address": "std",
+                  "name": "option"
+                },
+                "name": "Option",
+                "type_arguments": [
+                  {
+                    "phantom": false,
+                    "argument": "u64"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "enums": {}
+}

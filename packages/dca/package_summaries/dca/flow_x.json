@@ -1,0 +1,1068 @@
+{
+  "id": {
+    "address": "dca",
+    "name": "flow_x"
+  },
+  "doc": " @title FlowX DEX Adapter\n @notice Adapter for executing DCA trades through FlowX AMM\n @dev Router functions: https://github.com/FlowX-Finance/ts-sdk/blob/001d2b549931001fe01f4547c311b9639182e0af/src/constants.ts#L55",
+  "immediate_dependencies": [
+    {
+      "address": "dca",
+      "name": "config"
+    },
+    {
+      "address": "dca",
+      "name": "dca"
+    },
+    {
+      "address": "flowx_amm",
+      "name": "factory"
+    },
+    {
+      "address": "flowx_amm",
+      "name": "router"
+    },
+    {
+      "address": "sui",
+      "name": "balance"
+    },
+    {
+      "address": "sui",
+      "name": "clock"
+    },
+    {
+      "address": "sui",
+      "name": "coin"
+    },
+    {
+      "address": "sui",
+      "name": "sui"
+    },
+    {
+      "address": "sui",
+      "name": "transfer"
+    },
+    {
+      "address": "sui",
+      "name": "tx_context"
+    }
+  ],
+  "attributes": [
+    {
+      "Parameterized": [
+        "allow",
+        [
+          {
+            "Parameterized": [
+              "lint",
+              [
+                {
+                  "Name": "self_transfer"
+                }
+              ]
+            ]
+          }
+        ]
+      ]
+    }
+  ],
+  "functions": {
+    "swap_exact_output": {
+      "source_index": 0,
+      "index": 0,
+      "doc": null,
+      "attributes": [],
+      "visibility": "Public",
+      "entry": true,
+      "type_parameters": [
+        {
+          "name": "INPUT",
+          "constraints": []
+        },
+        {
+          "name": "OUTPUT",
+          "constraints": []
+        }
+      ],
+      "parameters": [
+        {
+          "name": "clock",
+          "type_": {
+            "Reference": [
+              false,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "sui",
+                    "name": "clock"
+                  },
+                  "name": "Clock",
+                  "type_arguments": []
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "pools",
+          "type_": {
+            "Reference": [
+              true,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "flowx_amm",
+                    "name": "factory"
+                  },
+                  "name": "Container",
+                  "type_arguments": []
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "fee_tracker",
+          "type_": {
+            "Reference": [
+              true,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "dca",
+                    "name": "config"
+                  },
+                  "name": "FeeTracker",
+                  "type_arguments": []
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "input_funds",
+          "type_": {
+            "Datatype": {
+              "module": {
+                "address": "sui",
+                "name": "coin"
+              },
+              "name": "Coin",
+              "type_arguments": [
+                {
+                  "phantom": true,
+                  "argument": {
+                    "NamedTypeParameter": "INPUT"
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "input_amount",
+          "type_": "u64"
+        },
+        {
+          "name": "exact_output",
+          "type_": "u64"
+        },
+        {
+          "name": "recipient",
+          "type_": "address"
+        },
+        {
+          "name": "sqrt_price",
+          "type_": "u64"
+        },
+        {
+          "name": "dca",
+          "type_": {
+            "Reference": [
+              true,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "dca",
+                    "name": "dca"
+                  },
+                  "name": "DCA",
+                  "type_arguments": [
+                    {
+                      "phantom": true,
+                      "argument": {
+                        "NamedTypeParameter": "INPUT"
+                      }
+                    },
+                    {
+                      "phantom": true,
+                      "argument": {
+                        "NamedTypeParameter": "OUTPUT"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "executor_reward",
+          "type_": "u64"
+        },
+        {
+          "name": "ctx",
+          "type_": {
+            "Reference": [
+              true,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "sui",
+                    "name": "tx_context"
+                  },
+                  "name": "TxContext",
+                  "type_arguments": []
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "return_": []
+    },
+    "swap_exact_input": {
+      "source_index": 1,
+      "index": 1,
+      "doc": null,
+      "attributes": [],
+      "visibility": "Public",
+      "entry": true,
+      "type_parameters": [
+        {
+          "name": "INPUT",
+          "constraints": []
+        },
+        {
+          "name": "OUTPUT",
+          "constraints": []
+        }
+      ],
+      "parameters": [
+        {
+          "name": "clock",
+          "type_": {
+            "Reference": [
+              false,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "sui",
+                    "name": "clock"
+                  },
+                  "name": "Clock",
+                  "type_arguments": []
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "pools",
+          "type_": {
+            "Reference": [
+              true,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "flowx_amm",
+                    "name": "factory"
+                  },
+                  "name": "Container",
+                  "type_arguments": []
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "fee_tracker",
+          "type_": {
+            "Reference": [
+              true,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "dca",
+                    "name": "config"
+                  },
+                  "name": "FeeTracker",
+                  "type_arguments": []
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "input_funds",
+          "type_": {
+            "Datatype": {
+              "module": {
+                "address": "sui",
+                "name": "coin"
+              },
+              "name": "Coin",
+              "type_arguments": [
+                {
+                  "phantom": true,
+                  "argument": {
+                    "NamedTypeParameter": "INPUT"
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "min_output",
+          "type_": "u64"
+        },
+        {
+          "name": "recipient",
+          "type_": "address"
+        },
+        {
+          "name": "sqrt_price",
+          "type_": "u64"
+        },
+        {
+          "name": "dca",
+          "type_": {
+            "Reference": [
+              true,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "dca",
+                    "name": "dca"
+                  },
+                  "name": "DCA",
+                  "type_arguments": [
+                    {
+                      "phantom": true,
+                      "argument": {
+                        "NamedTypeParameter": "INPUT"
+                      }
+                    },
+                    {
+                      "phantom": true,
+                      "argument": {
+                        "NamedTypeParameter": "OUTPUT"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "executor_reward",
+          "type_": "u64"
+        },
+        {
+          "name": "ctx",
+          "type_": {
+            "Reference": [
+              true,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "sui",
+                    "name": "tx_context"
+                  },
+                  "name": "TxContext",
+                  "type_arguments": []
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "return_": []
+    },
+    "swap_exact_output_doublehop": {
+      "source_index": 2,
+      "index": 2,
+      "doc": null,
+      "attributes": [],
+      "visibility": "Public",
+      "entry": true,
+      "type_parameters": [
+        {
+          "name": "INPUT",
+          "constraints": []
+        },
+        {
+          "name": "HOP1",
+          "constraints": []
+        },
+        {
+          "name": "OUTPUT",
+          "constraints": []
+        }
+      ],
+      "parameters": [
+        {
+          "name": "clock",
+          "type_": {
+            "Reference": [
+              false,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "sui",
+                    "name": "clock"
+                  },
+                  "name": "Clock",
+                  "type_arguments": []
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "pools",
+          "type_": {
+            "Reference": [
+              true,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "flowx_amm",
+                    "name": "factory"
+                  },
+                  "name": "Container",
+                  "type_arguments": []
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "fee_tracker",
+          "type_": {
+            "Reference": [
+              true,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "dca",
+                    "name": "config"
+                  },
+                  "name": "FeeTracker",
+                  "type_arguments": []
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "input_funds",
+          "type_": {
+            "Datatype": {
+              "module": {
+                "address": "sui",
+                "name": "coin"
+              },
+              "name": "Coin",
+              "type_arguments": [
+                {
+                  "phantom": true,
+                  "argument": {
+                    "NamedTypeParameter": "INPUT"
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "input_amount",
+          "type_": "u64"
+        },
+        {
+          "name": "exact_output",
+          "type_": "u64"
+        },
+        {
+          "name": "recipient",
+          "type_": "address"
+        },
+        {
+          "name": "sqrt_price",
+          "type_": "u64"
+        },
+        {
+          "name": "dca",
+          "type_": {
+            "Reference": [
+              true,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "dca",
+                    "name": "dca"
+                  },
+                  "name": "DCA",
+                  "type_arguments": [
+                    {
+                      "phantom": true,
+                      "argument": {
+                        "NamedTypeParameter": "INPUT"
+                      }
+                    },
+                    {
+                      "phantom": true,
+                      "argument": {
+                        "NamedTypeParameter": "OUTPUT"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "executor_reward",
+          "type_": "u64"
+        },
+        {
+          "name": "ctx",
+          "type_": {
+            "Reference": [
+              true,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "sui",
+                    "name": "tx_context"
+                  },
+                  "name": "TxContext",
+                  "type_arguments": []
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "return_": []
+    },
+    "swap_exact_input_doublehop": {
+      "source_index": 3,
+      "index": 3,
+      "doc": null,
+      "attributes": [],
+      "visibility": "Public",
+      "entry": true,
+      "type_parameters": [
+        {
+          "name": "INPUT",
+          "constraints": []
+        },
+        {
+          "name": "HOP",
+          "constraints": []
+        },
+        {
+          "name": "OUTPUT",
+          "constraints": []
+        }
+      ],
+      "parameters": [
+        {
+          "name": "clock",
+          "type_": {
+            "Reference": [
+              false,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "sui",
+                    "name": "clock"
+                  },
+                  "name": "Clock",
+                  "type_arguments": []
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "pools",
+          "type_": {
+            "Reference": [
+              true,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "flowx_amm",
+                    "name": "factory"
+                  },
+                  "name": "Container",
+                  "type_arguments": []
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "fee_tracker",
+          "type_": {
+            "Reference": [
+              true,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "dca",
+                    "name": "config"
+                  },
+                  "name": "FeeTracker",
+                  "type_arguments": []
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "input_funds",
+          "type_": {
+            "Datatype": {
+              "module": {
+                "address": "sui",
+                "name": "coin"
+              },
+              "name": "Coin",
+              "type_arguments": [
+                {
+                  "phantom": true,
+                  "argument": {
+                    "NamedTypeParameter": "INPUT"
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "min_output",
+          "type_": "u64"
+        },
+        {
+          "name": "recipient",
+          "type_": "address"
+        },
+        {
+          "name": "sqrt_price",
+          "type_": "u64"
+        },
+        {
+          "name": "dca",
+          "type_": {
+            "Reference": [
+              true,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "dca",
+                    "name": "dca"
+                  },
+                  "name": "DCA",
+                  "type_arguments": [
+                    {
+                      "phantom": true,
+                      "argument": {
+                        "NamedTypeParameter": "INPUT"
+                      }
+                    },
+                    {
+                      "phantom": true,
+                      "argument": {
+                        "NamedTypeParameter": "OUTPUT"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "executor_reward",
+          "type_": "u64"
+        },
+        {
+          "name": "ctx",
+          "type_": {
+            "Reference": [
+              true,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "sui",
+                    "name": "tx_context"
+                  },
+                  "name": "TxContext",
+                  "type_arguments": []
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "return_": []
+    },
+    "swap_exact_output_triplehop": {
+      "source_index": 4,
+      "index": 4,
+      "doc": null,
+      "attributes": [],
+      "visibility": "Public",
+      "entry": true,
+      "type_parameters": [
+        {
+          "name": "INPUT",
+          "constraints": []
+        },
+        {
+          "name": "HOP1",
+          "constraints": []
+        },
+        {
+          "name": "HOP2",
+          "constraints": []
+        },
+        {
+          "name": "OUTPUT",
+          "constraints": []
+        }
+      ],
+      "parameters": [
+        {
+          "name": "clock",
+          "type_": {
+            "Reference": [
+              false,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "sui",
+                    "name": "clock"
+                  },
+                  "name": "Clock",
+                  "type_arguments": []
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "pools",
+          "type_": {
+            "Reference": [
+              true,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "flowx_amm",
+                    "name": "factory"
+                  },
+                  "name": "Container",
+                  "type_arguments": []
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "fee_tracker",
+          "type_": {
+            "Reference": [
+              true,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "dca",
+                    "name": "config"
+                  },
+                  "name": "FeeTracker",
+                  "type_arguments": []
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "input_funds",
+          "type_": {
+            "Datatype": {
+              "module": {
+                "address": "sui",
+                "name": "coin"
+              },
+              "name": "Coin",
+              "type_arguments": [
+                {
+                  "phantom": true,
+                  "argument": {
+                    "NamedTypeParameter": "INPUT"
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "input_amount",
+          "type_": "u64"
+        },
+        {
+          "name": "exact_output",
+          "type_": "u64"
+        },
+        {
+          "name": "recipient",
+          "type_": "address"
+        },
+        {
+          "name": "sqrt_price",
+          "type_": "u64"
+        },
+        {
+          "name": "dca",
+          "type_": {
+            "Reference": [
+              true,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "dca",
+                    "name": "dca"
+                  },
+                  "name": "DCA",
+                  "type_arguments": [
+                    {
+                      "phantom": true,
+                      "argument": {
+                        "NamedTypeParameter": "INPUT"
+                      }
+                    },
+                    {
+                      "phantom": true,
+                      "argument": {
+                        "NamedTypeParameter": "OUTPUT"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "executor_reward",
+          "type_": "u64"
+        },
+        {
+          "name": "ctx",
+          "type_": {
+            "Reference": [
+              true,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "sui",
+                    "name": "tx_context"
+                  },
+                  "name": "TxContext",
+                  "type_arguments": []
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "return_": []
+    },
+    "swap_exact_input_triplehop": {
+      "source_index": 5,
+      "index": 5,
+      "doc": null,
+      "attributes": [],
+      "visibility": "Public",
+      "entry": true,
+      "type_parameters": [
+        {
+          "name": "INPUT",
+          "constraints": []
+        },
+        {
+          "name": "HOP1",
+          "constraints": []
+        },
+        {
+          "name": "HOP2",
+          "constraints": []
+        },
+        {
+          "name": "OUTPUT",
+          "constraints": []
+        }
+      ],
+      "parameters": [
+        {
+          "name": "clock",
+          "type_": {
+            "Reference": [
+              false,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "sui",
+                    "name": "clock"
+                  },
+                  "name": "Clock",
+                  "type_arguments": []
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "pools",
+          "type_": {
+            "Reference": [
+              true,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "flowx_amm",
+                    "name": "factory"
+                  },
+                  "name": "Container",
+                  "type_arguments": []
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "fee_tracker",
+          "type_": {
+            "Reference": [
+              true,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "dca",
+                    "name": "config"
+                  },
+                  "name": "FeeTracker",
+                  "type_arguments": []
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "input_funds",
+          "type_": {
+            "Datatype": {
+              "module": {
+                "address": "sui",
+                "name": "coin"
+              },
+              "name": "Coin",
+              "type_arguments": [
+                {
+                  "phantom": true,
+                  "argument": {
+                    "NamedTypeParameter": "INPUT"
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "min_output",
+          "type_": "u64"
+        },
+        {
+          "name": "recipient",
+          "type_": "address"
+        },
+        {
+          "name": "sqrt_price",
+          "type_": "u64"
+        },
+        {
+          "name": "dca",
+          "type_": {
+            "Reference": [
+              true,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "dca",
+                    "name": "dca"
+                  },
+                  "name": "DCA",
+                  "type_arguments": [
+                    {
+                      "phantom": true,
+                      "argument": {
+                        "NamedTypeParameter": "INPUT"
+                      }
+                    },
+                    {
+                      "phantom": true,
+                      "argument": {
+                        "NamedTypeParameter": "OUTPUT"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "executor_reward",
+          "type_": "u64"
+        },
+        {
+          "name": "ctx",
+          "type_": {
+            "Reference": [
+              true,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "sui",
+                    "name": "tx_context"
+                  },
+                  "name": "TxContext",
+                  "type_arguments": []
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "return_": []
+    }
+  },
+  "structs": {},
+  "enums": {}
+}

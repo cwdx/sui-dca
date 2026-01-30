@@ -1,0 +1,10 @@
+[package]
+name = "Cetus"
+version = "0.0.1"
+
+[dependencies]
+Sui = { git = "https://github.com/MystenLabs/sui.git", subdir = "crates/sui-framework/packages/sui-framework", rev = "cb67daa88e78f738159e40d765fee18ceb396cd8", override = true }
+CetusClmm = { local = "../cetus_clmm" }
+
+[addresses]
+cetus = "0x2918cf39850de6d5d94d8196dc878c8c722cd79db659318e00bff57fbb4e2ede"

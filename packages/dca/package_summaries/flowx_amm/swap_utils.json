@@ -1,0 +1,174 @@
+{
+  "id": {
+    "address": "flowx_amm",
+    "name": "swap_utils"
+  },
+  "doc": null,
+  "immediate_dependencies": [
+    {
+      "address": "sui",
+      "name": "coin"
+    }
+  ],
+  "attributes": [],
+  "functions": {
+    "get_amount_out": {
+      "source_index": 0,
+      "index": 0,
+      "doc": null,
+      "attributes": [],
+      "visibility": "Public",
+      "entry": false,
+      "type_parameters": [],
+      "parameters": [
+        {
+          "name": "arg_0",
+          "type_": "u64"
+        },
+        {
+          "name": "arg_1",
+          "type_": "u64"
+        },
+        {
+          "name": "arg_2",
+          "type_": "u64"
+        },
+        {
+          "name": "arg_3",
+          "type_": "u64"
+        }
+      ],
+      "return_": [
+        "u64"
+      ]
+    },
+    "get_amount_in": {
+      "source_index": 1,
+      "index": 1,
+      "doc": null,
+      "attributes": [],
+      "visibility": "Public",
+      "entry": false,
+      "type_parameters": [],
+      "parameters": [
+        {
+          "name": "arg_0",
+          "type_": "u64"
+        },
+        {
+          "name": "arg_1",
+          "type_": "u64"
+        },
+        {
+          "name": "arg_2",
+          "type_": "u64"
+        },
+        {
+          "name": "arg_3",
+          "type_": "u64"
+        }
+      ],
+      "return_": [
+        "u64"
+      ]
+    },
+    "quote": {
+      "source_index": 2,
+      "index": 2,
+      "doc": null,
+      "attributes": [],
+      "visibility": "Public",
+      "entry": false,
+      "type_parameters": [],
+      "parameters": [
+        {
+          "name": "arg_0",
+          "type_": "u64"
+        },
+        {
+          "name": "arg_1",
+          "type_": "u64"
+        },
+        {
+          "name": "arg_2",
+          "type_": "u64"
+        }
+      ],
+      "return_": [
+        "u64"
+      ]
+    },
+    "is_ordered": {
+      "source_index": 3,
+      "index": 3,
+      "doc": null,
+      "attributes": [],
+      "visibility": "Public",
+      "entry": false,
+      "type_parameters": [
+        {
+          "name": "Ty0",
+          "constraints": []
+        },
+        {
+          "name": "Ty1",
+          "constraints": []
+        }
+      ],
+      "parameters": [],
+      "return_": [
+        "bool"
+      ]
+    },
+    "left_amount": {
+      "source_index": 4,
+      "index": 4,
+      "doc": null,
+      "attributes": [],
+      "visibility": "Public",
+      "entry": false,
+      "type_parameters": [
+        {
+          "name": "Ty0",
+          "constraints": []
+        }
+      ],
+      "parameters": [
+        {
+          "name": "arg_0",
+          "type_": {
+            "Reference": [
+              false,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "sui",
+                    "name": "coin"
+                  },
+                  "name": "Coin",
+                  "type_arguments": [
+                    {
+                      "phantom": true,
+                      "argument": {
+                        "NamedTypeParameter": "Ty0"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "arg_1",
+          "type_": "u64"
+        }
+      ],
+      "return_": [
+        "u64"
+      ]
+    }
+  },
+  "structs": {},
+  "enums": {}
+}

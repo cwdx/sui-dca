@@ -1,0 +1,16 @@
+[package]
+name = "AftermathAmmInterface"
+version = "0.0.1"
+
+[dependencies]
+Sui = { git = "https://github.com/MystenLabs/sui.git", subdir = "crates/sui-framework/packages/sui-framework", rev = "74e8414a4" }
+DeepBook = { git = "https://github.com/MystenLabs/sui.git", subdir = "crates/sui-framework/packages/deepbook", rev = "74e8414a4" }
+AftermathAmm = { local = "../amm/amm" }
+InsuranceFund = { local = "../amm/amm-insurance-fund" }
+ProtocolFeeVault = { local = "../amm/amm-protocol-fee-vault" }
+ReferralVault = { local = "../amm/amm-referral-vault" }
+Treasury = { local = "../amm/amm-treasury" }
+
+[addresses]
+amm_interface = "0x0625dc2cd40aee3998a1d6620de8892964c15066e0a285d8b573910ed4c75d50"
+deepbook =  "000000000000000000000000000000000000000000000000000000000000dee9"

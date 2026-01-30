@@ -1,0 +1,126 @@
+{
+  "id": {
+    "address": "flowx_amm",
+    "name": "treasury"
+  },
+  "doc": null,
+  "immediate_dependencies": [],
+  "attributes": [],
+  "functions": {
+    "new": {
+      "source_index": 0,
+      "index": 0,
+      "doc": null,
+      "attributes": [],
+      "visibility": "Friend",
+      "entry": false,
+      "type_parameters": [],
+      "parameters": [
+        {
+          "name": "arg_0",
+          "type_": "address"
+        }
+      ],
+      "return_": [
+        {
+          "Datatype": {
+            "module": {
+              "address": "flowx_amm",
+              "name": "treasury"
+            },
+            "name": "Treasury",
+            "type_arguments": []
+          }
+        }
+      ]
+    },
+    "treasurer": {
+      "source_index": 1,
+      "index": 1,
+      "doc": null,
+      "attributes": [],
+      "visibility": "Public",
+      "entry": false,
+      "type_parameters": [],
+      "parameters": [
+        {
+          "name": "arg_0",
+          "type_": {
+            "Reference": [
+              false,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "flowx_amm",
+                    "name": "treasury"
+                  },
+                  "name": "Treasury",
+                  "type_arguments": []
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "return_": [
+        "address"
+      ]
+    },
+    "appoint": {
+      "source_index": 2,
+      "index": 2,
+      "doc": null,
+      "attributes": [],
+      "visibility": "Public",
+      "entry": false,
+      "type_parameters": [],
+      "parameters": [
+        {
+          "name": "arg_0",
+          "type_": {
+            "Reference": [
+              true,
+              {
+                "Datatype": {
+                  "module": {
+                    "address": "flowx_amm",
+                    "name": "treasury"
+                  },
+                  "name": "Treasury",
+                  "type_arguments": []
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "arg_1",
+          "type_": "address"
+        }
+      ],
+      "return_": []
+    }
+  },
+  "structs": {
+    "Treasury": {
+      "index": 0,
+      "doc": null,
+      "attributes": [],
+      "abilities": [
+        "Store"
+      ],
+      "type_parameters": [],
+      "fields": {
+        "positional_fields": false,
+        "fields": {
+          "treasurer": {
+            "index": 0,
+            "doc": null,
+            "type_": "address"
+          }
+        }
+      }
+    }
+  },
+  "enums": {}
+}

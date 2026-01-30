@@ -1,0 +1,45 @@
+{
+  "id": {
+    "address": "flowx_amm",
+    "name": "type_helper"
+  },
+  "doc": null,
+  "immediate_dependencies": [
+    {
+      "address": "std",
+      "name": "string"
+    }
+  ],
+  "attributes": [],
+  "functions": {
+    "get_type_name": {
+      "source_index": 0,
+      "index": 0,
+      "doc": null,
+      "attributes": [],
+      "visibility": "Public",
+      "entry": false,
+      "type_parameters": [
+        {
+          "name": "Ty0",
+          "constraints": []
+        }
+      ],
+      "parameters": [],
+      "return_": [
+        {
+          "Datatype": {
+            "module": {
+              "address": "std",
+              "name": "string"
+            },
+            "name": "String",
+            "type_arguments": []
+          }
+        }
+      ]
+    }
+  },
+  "structs": {},
+  "enums": {}
+}

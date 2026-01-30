@@ -1,0 +1,13 @@
+FROM rust:latest
+
+# Install nightly and git
+RUN rustup default nightly && \
+    apt-get update && apt-get install -y git && \
+    mkdir -p ~/.cargo && \
+    echo '[net]' > ~/.cargo/config.toml && \
+    echo 'git-fetch-with-cli = true' >> ~/.cargo/config.toml
+
+# Install sui-client-gen
+RUN cargo install --locked --git https://github.com/kunalabs-io/sui-client-gen.git --tag v0.5.0
+
+ENTRYPOINT ["sui-client-gen"]

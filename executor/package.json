@@ -1,0 +1,23 @@
+{
+  "name": "sui-dca-executor",
+  "version": "1.0.0",
+  "description": "Bun-based cron executor for Sui DCA contracts",
+  "type": "module",
+  "main": "src/index.ts",
+  "scripts": {
+    "start": "bun run src/index.ts",
+    "dev": "bun run --watch src/index.ts",
+    "test": "bun test",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@mysten/sui": "^1.0.0",
+    "croner": "^8.0.0",
+    "zod": "^3.22.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.3.11",
+    "@types/bun": "^1.1.0",
+    "typescript": "^5.0.0"
+  }
+}

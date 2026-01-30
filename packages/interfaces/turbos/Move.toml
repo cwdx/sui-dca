@@ -1,0 +1,11 @@
+[package]
+name = "TurbosCLMM"
+version = "0.0.5"
+# No published-at - will bundle with --with-unpublished-dependencies
+
+[dependencies]
+Sui = { git = "https://github.com/MystenLabs/sui.git", subdir = "crates/sui-framework/packages/sui-framework", rev = "testnet-v1.63.2", override = true }
+
+[addresses]
+# Will be assigned at publish time
+turbos_clmm = "0x0"

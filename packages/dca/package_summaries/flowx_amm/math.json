@@ -1,0 +1,159 @@
+{
+  "id": {
+    "address": "flowx_amm",
+    "name": "math"
+  },
+  "doc": null,
+  "immediate_dependencies": [],
+  "attributes": [],
+  "functions": {
+    "max": {
+      "source_index": 0,
+      "index": 0,
+      "doc": null,
+      "attributes": [],
+      "visibility": "Public",
+      "entry": false,
+      "type_parameters": [],
+      "parameters": [
+        {
+          "name": "arg_0",
+          "type_": "u64"
+        },
+        {
+          "name": "arg_1",
+          "type_": "u64"
+        }
+      ],
+      "return_": [
+        "u64"
+      ]
+    },
+    "min": {
+      "source_index": 1,
+      "index": 1,
+      "doc": null,
+      "attributes": [],
+      "visibility": "Public",
+      "entry": false,
+      "type_parameters": [],
+      "parameters": [
+        {
+          "name": "arg_0",
+          "type_": "u64"
+        },
+        {
+          "name": "arg_1",
+          "type_": "u64"
+        }
+      ],
+      "return_": [
+        "u64"
+      ]
+    },
+    "pow": {
+      "source_index": 2,
+      "index": 2,
+      "doc": null,
+      "attributes": [],
+      "visibility": "Public",
+      "entry": false,
+      "type_parameters": [],
+      "parameters": [
+        {
+          "name": "arg_0",
+          "type_": "u64"
+        },
+        {
+          "name": "arg_1",
+          "type_": "u8"
+        }
+      ],
+      "return_": [
+        "u64"
+      ]
+    },
+    "max_u128": {
+      "source_index": 3,
+      "index": 3,
+      "doc": null,
+      "attributes": [],
+      "visibility": "Public",
+      "entry": false,
+      "type_parameters": [],
+      "parameters": [
+        {
+          "name": "arg_0",
+          "type_": "u128"
+        },
+        {
+          "name": "arg_1",
+          "type_": "u128"
+        }
+      ],
+      "return_": [
+        "u128"
+      ]
+    },
+    "min_u128": {
+      "source_index": 4,
+      "index": 4,
+      "doc": null,
+      "attributes": [],
+      "visibility": "Public",
+      "entry": false,
+      "type_parameters": [],
+      "parameters": [
+        {
+          "name": "arg_0",
+          "type_": "u128"
+        },
+        {
+          "name": "arg_1",
+          "type_": "u128"
+        }
+      ],
+      "return_": [
+        "u128"
+      ]
+    },
+    "sqrt": {
+      "source_index": 5,
+      "index": 5,
+      "doc": null,
+      "attributes": [],
+      "visibility": "Public",
+      "entry": false,
+      "type_parameters": [],
+      "parameters": [
+        {
+          "name": "arg_0",
+          "type_": "u64"
+        }
+      ],
+      "return_": [
+        "u64"
+      ]
+    },
+    "sqrt_u128": {
+      "source_index": 6,
+      "index": 6,
+      "doc": null,
+      "attributes": [],
+      "visibility": "Public",
+      "entry": false,
+      "type_parameters": [],
+      "parameters": [
+        {
+          "name": "arg_0",
+          "type_": "u128"
+        }
+      ],
+      "return_": [
+        "u128"
+      ]
+    }
+  },
+  "structs": {},
+  "enums": {}
+}

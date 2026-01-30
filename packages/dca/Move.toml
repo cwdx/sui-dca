@@ -1,0 +1,13 @@
+[package]
+name = "DCA"
+version = "0.0.4"
+# published-at removed for fresh publish
+
+[dependencies]
+Sui = { git = "https://github.com/MystenLabs/sui.git", subdir = "crates/sui-framework/packages/sui-framework", rev = "testnet-v1.63.2", override = true }
+FlowXAMM = { local = "../interfaces/flow_x" }
+Pyth = { git = "https://github.com/pyth-network/pyth-crosschain.git", subdir = "target_chains/sui/contracts", rev = "sui-contract-mainnet" }
+Wormhole = { git = "https://github.com/wormhole-foundation/wormhole.git", subdir = "sui/wormhole", rev = "sui/mainnet" }
+
+[addresses]
+dca = "0x0"

@@ -1,0 +1,199 @@
+{
+  "id": {
+    "address": "dca",
+    "name": "time"
+  },
+  "doc": null,
+  "immediate_dependencies": [],
+  "attributes": [],
+  "functions": {
+    "has_n_seconds_passed": {
+      "source_index": 0,
+      "index": 0,
+      "doc": null,
+      "attributes": [],
+      "visibility": "Public",
+      "entry": false,
+      "type_parameters": [],
+      "parameters": [
+        {
+          "name": "b_ts",
+          "type_": "u64"
+        },
+        {
+          "name": "a_ts",
+          "type_": "u64"
+        },
+        {
+          "name": "n",
+          "type_": "u64"
+        }
+      ],
+      "return_": [
+        "bool"
+      ]
+    },
+    "has_n_minutes_passed": {
+      "source_index": 1,
+      "index": 1,
+      "doc": null,
+      "attributes": [],
+      "visibility": "Public",
+      "entry": false,
+      "type_parameters": [],
+      "parameters": [
+        {
+          "name": "b_ts",
+          "type_": "u64"
+        },
+        {
+          "name": "a_ts",
+          "type_": "u64"
+        },
+        {
+          "name": "n",
+          "type_": "u64"
+        }
+      ],
+      "return_": [
+        "bool"
+      ]
+    },
+    "has_n_hours_passed": {
+      "source_index": 2,
+      "index": 2,
+      "doc": null,
+      "attributes": [],
+      "visibility": "Public",
+      "entry": false,
+      "type_parameters": [],
+      "parameters": [
+        {
+          "name": "b_ts",
+          "type_": "u64"
+        },
+        {
+          "name": "a_ts",
+          "type_": "u64"
+        },
+        {
+          "name": "n",
+          "type_": "u64"
+        }
+      ],
+      "return_": [
+        "bool"
+      ]
+    },
+    "has_n_days_passed": {
+      "source_index": 3,
+      "index": 3,
+      "doc": null,
+      "attributes": [],
+      "visibility": "Public",
+      "entry": false,
+      "type_parameters": [],
+      "parameters": [
+        {
+          "name": "b_ts",
+          "type_": "u64"
+        },
+        {
+          "name": "a_ts",
+          "type_": "u64"
+        },
+        {
+          "name": "n",
+          "type_": "u64"
+        }
+      ],
+      "return_": [
+        "bool"
+      ]
+    },
+    "has_n_weeks_passed": {
+      "source_index": 4,
+      "index": 4,
+      "doc": null,
+      "attributes": [],
+      "visibility": "Public",
+      "entry": false,
+      "type_parameters": [],
+      "parameters": [
+        {
+          "name": "b_ts",
+          "type_": "u64"
+        },
+        {
+          "name": "a_ts",
+          "type_": "u64"
+        },
+        {
+          "name": "n",
+          "type_": "u64"
+        }
+      ],
+      "return_": [
+        "bool"
+      ]
+    },
+    "has_n_months_passed": {
+      "source_index": 5,
+      "index": 5,
+      "doc": null,
+      "attributes": [],
+      "visibility": "Public",
+      "entry": false,
+      "type_parameters": [],
+      "parameters": [
+        {
+          "name": "b_ts",
+          "type_": "u64"
+        },
+        {
+          "name": "a_ts",
+          "type_": "u64"
+        },
+        {
+          "name": "n",
+          "type_": "u64"
+        }
+      ],
+      "return_": [
+        "bool"
+      ]
+    },
+    "has_n_seconds_passed_": {
+      "source_index": 6,
+      "index": 6,
+      "doc": null,
+      "attributes": [],
+      "visibility": "Private",
+      "entry": false,
+      "type_parameters": [],
+      "parameters": [
+        {
+          "name": "b_ts",
+          "type_": "u64"
+        },
+        {
+          "name": "a_ts",
+          "type_": "u64"
+        },
+        {
+          "name": "n",
+          "type_": "u64"
+        },
+        {
+          "name": "mean_deviation",
+          "type_": "u64"
+        }
+      ],
+      "return_": [
+        "bool"
+      ]
+    }
+  },
+  "structs": {},
+  "enums": {}
+}

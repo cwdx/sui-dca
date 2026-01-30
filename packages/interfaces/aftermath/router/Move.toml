@@ -1,0 +1,12 @@
+[package]
+name = "AftermathRouter"
+version = "0.0.1"
+
+[dependencies]
+Sui = { git = "https://github.com/MystenLabs/sui.git", subdir = "crates/sui-framework/packages/sui-framework", rev = "74e8414a4" }
+DeepBook = { git = "https://github.com/MystenLabs/sui.git", subdir = "crates/sui-framework/packages/deepbook", rev = "74e8414a4" }
+AftermathSwapCap = { local = "../swap-cap" }
+
+[addresses]
+aftermath_router = "0xf63c58d762286cff1ef8eab36a24c836d23ec0ca19eacbafec7a0275a09cd520"
+deepbook =  "000000000000000000000000000000000000000000000000000000000000dee9"

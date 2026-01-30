@@ -1,0 +1,9 @@
+[package]
+name = "MoveSTL"
+version = "1.2.0"
+
+[dependencies]
+Sui = { git = "https://github.com/MystenLabs/sui.git", subdir = "crates/sui-framework/packages/sui-framework", rev = "cb67daa88e78f738159e40d765fee18ceb396cd8", override = true }
+
+[addresses]
+move_stl = "0xfc127e3f9318fc874f94e464b1ee06ec01da31ca85479b8ebd3fa068f11a5b7d"
