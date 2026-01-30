@@ -83,7 +83,10 @@
       "mcp__chrome-devtools__list_console_messages",
       "mcp__chrome-devtools__list_network_requests",
       "mcp__chrome-devtools__take_screenshot",
-      "Bash(gh run view:*)"
+      "Bash(gh run view:*)",
+      "Bash(for i in 1 2 3 4 5 6)",
+      "Bash(do echo \"=== Run $i ===\")",
+      "Bash(done)"
     ]
   }
 }
