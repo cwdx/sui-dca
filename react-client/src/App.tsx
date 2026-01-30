@@ -6,7 +6,9 @@ import { Admin } from "@/components/Admin";
 import { CreateDCA } from "@/components/CreateDCA";
 import { DCACalculator } from "@/components/DCACalculator";
 import { MyDCAs } from "@/components/MyDCAs";
+import { Toaster } from "@/components/Toaster";
 import { Button } from "@/components/ui";
+import { useDCAEventSubscription } from "@/hooks/useDCAEvents";
 import { cn } from "@/lib/utils";
 
 // Get base path from Vite (for GitHub Pages deployment)
@@ -161,9 +163,13 @@ function AdminPage() {
 function AppContent() {
   const account = useCurrentAccount();
 
+  // Subscribe to live DCA events for toasts and query invalidation
+  useDCAEventSubscription();
+
   return (
     <div className="min-h-screen bg-background-primary flex flex-col">
       <Header />
+      <Toaster />
 
       <main className="flex-1 max-w-7xl mx-auto px-4 py-12 w-full">
         <Switch>

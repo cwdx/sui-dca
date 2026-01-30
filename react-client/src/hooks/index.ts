@@ -19,3 +19,5 @@ export {
 export type { TokenMetadata } from "./useTokenMetadata";
 export { useTokenMetadata, useTokensMetadata } from "./useTokenMetadata";
 export { useSuiNSAddress, useSuiNSName } from "./useSuiNS";
+export { useDCAEventSubscription, useDCAPolling } from "./useDCAEvents";
+export { useToast, toast } from "./useToast";
