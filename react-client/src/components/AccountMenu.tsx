@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { useNetwork } from "@/contexts/NetworkContext";
+import { useSuiNSName } from "@/hooks/useSuiNS";
 import { cn } from "@/lib/utils";
 
 export function AccountMenu() {
@@ -27,6 +28,9 @@ export function AccountMenu() {
   const client = useSuiClient();
   const { explorerAddressUrl } = useNetwork();
   const [copied, setCopied] = useState(false);
+
+  // Fetch SuiNS name
+  const { data: suinsName } = useSuiNSName(account?.address);
 
   // Fetch SUI balance
   const { data: balance } = useQuery({
@@ -46,6 +50,7 @@ export function AccountMenu() {
   if (!account) return null;
 
   const shortAddress = `${account.address.slice(0, 6)}...${account.address.slice(-4)}`;
+  const displayName = suinsName || shortAddress;
   const formattedBalance = balance
     ? `${(Number(balance) / 1e9).toFixed(2)} SUI`
     : "...";
@@ -74,7 +79,9 @@ export function AccountMenu() {
             <User className="w-3 h-3 text-foreground-inverse" />
           </div>
           <div className="text-left">
-            <div className="font-mono text-xs">{shortAddress}</div>
+            <div className={suinsName ? "text-xs font-medium" : "font-mono text-xs"}>
+              {displayName}
+            </div>
             <div className="text-xs text-foreground-muted">
               {formattedBalance}
             </div>
@@ -97,7 +104,14 @@ export function AccountMenu() {
             <p className="text-xs text-foreground-tertiary">
               Connected Account
             </p>
-            <p className="font-mono text-sm truncate">{account.address}</p>
+            {suinsName && (
+              <p className="text-sm font-medium text-foreground-primary">
+                {suinsName}
+              </p>
+            )}
+            <p className="font-mono text-xs text-foreground-secondary truncate">
+              {account.address}
+            </p>
             <p className="text-sm font-medium mt-1">{formattedBalance}</p>
           </div>
 

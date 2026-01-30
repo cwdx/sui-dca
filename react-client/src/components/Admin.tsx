@@ -5,7 +5,7 @@ import {
 } from "@mysten/dapp-kit";
 import { Transaction } from "@mysten/sui/transactions";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { AlertTriangle, Shield } from "lucide-react";
+import { AlertTriangle, ExternalLink, FileText, Shield } from "lucide-react";
 import { useState } from "react";
 import {
   Badge,
@@ -20,11 +20,21 @@ import {
 } from "@/components/ui";
 import { useNetwork } from "@/contexts/NetworkContext";
 
+// Convert on-chain blob_id (number array) to base64url string for Walrus URL
+function blobIdToString(blobId: number[]): string {
+  const bytes = new Uint8Array(blobId);
+  const base64 = btoa(String.fromCharCode(...bytes))
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/, "");
+  return base64;
+}
+
 export function Admin() {
   const account = useCurrentAccount();
   const client = useSuiClient();
   const _queryClient = useQueryClient();
-  const { contracts, network } = useNetwork();
+  const { contracts, network, explorerObjectUrl, walrusUrl } = useNetwork();
   const { mutate: signAndExecute, isPending } = useSignAndExecuteTransaction();
 
   // Form state for admin actions
@@ -393,7 +403,15 @@ export function Admin() {
               </div>
               <div className="col-span-2 md:col-span-3">
                 <p className="text-foreground-tertiary mb-1">Treasury</p>
-                <p className="font-mono text-xs break-all">{config.treasury}</p>
+                <a
+                  href={explorerObjectUrl(config.treasury)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-mono text-xs break-all text-accent hover:underline inline-flex items-center gap-1"
+                >
+                  {config.treasury}
+                  <ExternalLink className="w-3 h-3 flex-shrink-0" />
+                </a>
               </div>
             </div>
           ) : (
@@ -584,18 +602,28 @@ export function Admin() {
         </CardHeader>
         <CardContent>
           {terms ? (
-            <div className="grid grid-cols-3 gap-6 text-sm">
-              <div>
-                <p className="text-foreground-tertiary mb-1">Current Version</p>
-                <p className="font-mono">{terms.currentVersion}</p>
-              </div>
-              <div>
-                <p className="text-foreground-tertiary mb-1">Min Accepted</p>
-                <p className="font-mono">{terms.minAcceptedVersion}</p>
-              </div>
-              <div>
-                <p className="text-foreground-tertiary mb-1">Walrus Blob ID</p>
-                <p className="font-mono text-xs truncate">{terms.blobId}</p>
+            <div className="space-y-4">
+              <div className="grid grid-cols-3 gap-6 text-sm">
+                <div>
+                  <p className="text-foreground-tertiary mb-1">Current Version</p>
+                  <p className="font-mono">{terms.currentVersion}</p>
+                </div>
+                <div>
+                  <p className="text-foreground-tertiary mb-1">Min Accepted</p>
+                  <p className="font-mono">{terms.minAcceptedVersion}</p>
+                </div>
+                <div>
+                  <p className="text-foreground-tertiary mb-1">Walrus Blob ID</p>
+                  <a
+                    href={walrusUrl(Array.isArray(terms.blobId) ? blobIdToString(terms.blobId) : terms.blobId)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-mono text-xs truncate text-accent hover:underline inline-flex items-center gap-1"
+                  >
+                    {Array.isArray(terms.blobId) ? blobIdToString(terms.blobId) : terms.blobId}
+                    <ExternalLink className="w-3 h-3 flex-shrink-0" />
+                  </a>
+                </div>
               </div>
             </div>
           ) : (
@@ -614,42 +642,80 @@ export function Admin() {
           <div className="space-y-3 text-sm">
             <div>
               <p className="text-foreground-tertiary mb-1">Package</p>
-              <p className="font-mono text-xs break-all">
+              <a
+                href={explorerObjectUrl(contracts.packageId)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-mono text-xs break-all text-accent hover:underline inline-flex items-center gap-1"
+              >
                 {contracts.packageId}
-              </p>
+                <ExternalLink className="w-3 h-3 flex-shrink-0" />
+              </a>
             </div>
             <div>
               <p className="text-foreground-tertiary mb-1">Global Config</p>
-              <p className="font-mono text-xs break-all">
+              <a
+                href={explorerObjectUrl(contracts.globalConfig)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-mono text-xs break-all text-accent hover:underline inline-flex items-center gap-1"
+              >
                 {contracts.globalConfig}
-              </p>
+                <ExternalLink className="w-3 h-3 flex-shrink-0" />
+              </a>
             </div>
             <div>
               <p className="text-foreground-tertiary mb-1">Fee Tracker</p>
-              <p className="font-mono text-xs break-all">
+              <a
+                href={explorerObjectUrl(contracts.feeTracker)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-mono text-xs break-all text-accent hover:underline inline-flex items-center gap-1"
+              >
                 {contracts.feeTracker}
-              </p>
+                <ExternalLink className="w-3 h-3 flex-shrink-0" />
+              </a>
             </div>
             <div>
               <p className="text-foreground-tertiary mb-1">
                 Price Feed Registry
               </p>
-              <p className="font-mono text-xs break-all">
+              <a
+                href={explorerObjectUrl(contracts.priceFeedRegistry)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-mono text-xs break-all text-accent hover:underline inline-flex items-center gap-1"
+              >
                 {contracts.priceFeedRegistry}
-              </p>
+                <ExternalLink className="w-3 h-3 flex-shrink-0" />
+              </a>
             </div>
             <div>
               <p className="text-foreground-tertiary mb-1">Terms Registry</p>
-              <p className="font-mono text-xs break-all">
+              <a
+                href={explorerObjectUrl(contracts.termsRegistry)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-mono text-xs break-all text-accent hover:underline inline-flex items-center gap-1"
+              >
                 {contracts.termsRegistry}
-              </p>
+                <ExternalLink className="w-3 h-3 flex-shrink-0" />
+              </a>
             </div>
             {isAdmin && adminCapId && (
               <div>
                 <p className="text-foreground-tertiary mb-1">
                   Admin Cap (yours)
                 </p>
-                <p className="font-mono text-xs break-all">{adminCapId}</p>
+                <a
+                  href={explorerObjectUrl(adminCapId)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-mono text-xs break-all text-accent hover:underline inline-flex items-center gap-1"
+                >
+                  {adminCapId}
+                  <ExternalLink className="w-3 h-3 flex-shrink-0" />
+                </a>
               </div>
             )}
           </div>

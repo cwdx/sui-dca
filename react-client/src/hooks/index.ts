@@ -18,3 +18,4 @@ export {
 } from "./usePythPrices";
 export type { TokenMetadata } from "./useTokenMetadata";
 export { useTokenMetadata, useTokensMetadata } from "./useTokenMetadata";
+export { useSuiNSAddress, useSuiNSName } from "./useSuiNS";

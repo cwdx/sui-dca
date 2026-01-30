@@ -18,7 +18,7 @@ import {
   XCircle,
   Zap,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   reactivateAsOwner,
   redeemFundsAndDeactivate,
@@ -68,6 +68,72 @@ const TIME_SCALE_MS: Record<number, number> = {
   4: 604_800_000,
   5: 2_592_000_000,
 };
+
+/**
+ * Live countdown timer with progress bar
+ */
+function CountdownTimer({
+  targetMs,
+  intervalMs,
+}: {
+  targetMs: number;
+  intervalMs: number;
+}) {
+  const [now, setNow] = useState(Date.now());
+
+  useEffect(() => {
+    const timer = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const msRemaining = targetMs - now;
+  const isReady = msRemaining <= 0;
+
+  // Progress: how much of the interval has elapsed (0 to 100)
+  const startMs = targetMs - intervalMs;
+  const elapsed = now - startMs;
+  const progress = Math.min(100, Math.max(0, (elapsed / intervalMs) * 100));
+
+  // Format time remaining
+  const formatTime = (ms: number) => {
+    if (ms <= 0) return "Ready";
+    const seconds = Math.floor(ms / 1000);
+    if (seconds < 60) return `${seconds}s`;
+    const minutes = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    if (minutes < 60) return `${minutes}m ${secs}s`;
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    if (hours < 24) return `${hours}h ${mins}m`;
+    const days = Math.floor(hours / 24);
+    return `${days}d ${hours % 24}h`;
+  };
+
+  if (isReady) {
+    return (
+      <div className="space-y-1.5">
+        <p className="text-sm font-medium text-status-success flex items-center gap-1">
+          <Zap className="w-3 h-3" /> Ready
+        </p>
+        <div className="h-1 bg-status-success rounded-full animate-pulse" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-1.5">
+      <p className="text-sm font-mono font-medium text-foreground-primary">
+        {formatTime(msRemaining)}
+      </p>
+      <div className="h-1 bg-background-tertiary rounded-full overflow-hidden">
+        <div
+          className="h-full bg-accent transition-all duration-1000 ease-linear"
+          style={{ width: `${progress}%` }}
+        />
+      </div>
+    </div>
+  );
+}
 
 function parseDCAObject(obj: any): DCAAccount | null {
   try {
@@ -251,8 +317,6 @@ function DCACard({ dca }: { dca: DCAAccount }) {
   // Calculate next execution time
   const nextExecutionMs =
     Number(dca.lastTimeMs) + dca.every * TIME_SCALE_MS[dca.timeScale];
-  const nextExecution = dayjs(nextExecutionMs);
-  const isOverdue = nextExecution.isBefore(dayjs());
 
   const handleCancel = async () => {
     setError(null);
@@ -349,8 +413,11 @@ function DCACard({ dca }: { dca: DCAAccount }) {
                 </span>
               </div>
               <p className="text-xs text-foreground-muted">
-                {perTradeAmount.toFixed(2)} {inputToken?.symbol} every{" "}
-                {dca.every} {TIME_SCALE_NAMES[dca.timeScale]}
+                {perTradeAmount >= 1
+                  ? perTradeAmount.toFixed(2)
+                  : perTradeAmount.toPrecision(2)}{" "}
+                {inputToken?.symbol} every {dca.every}{" "}
+                {TIME_SCALE_NAMES[dca.timeScale]}
                 {dca.every > 1 ? "s" : ""}
               </p>
             </div>
@@ -415,7 +482,11 @@ function DCACard({ dca }: { dca: DCAAccount }) {
               Remaining
             </p>
             <p className="font-mono text-lg font-medium">
-              {inputBalance.toFixed(2)}
+              {inputBalance >= 1
+                ? inputBalance.toFixed(2)
+                : inputBalance > 0
+                  ? inputBalance.toPrecision(2)
+                  : "0.00"}
               <span className="text-foreground-muted text-sm ml-1">
                 {inputToken?.symbol}
               </span>
@@ -426,17 +497,10 @@ function DCACard({ dca }: { dca: DCAAccount }) {
               Next Trade
             </p>
             {dca.active && dca.remainingOrders > 0 ? (
-              <p
-                className={`text-sm font-medium ${isOverdue ? "text-status-success" : "text-foreground-primary"}`}
-              >
-                {isOverdue ? (
-                  <span className="flex items-center gap-1">
-                    <Zap className="w-3 h-3" /> Ready
-                  </span>
-                ) : (
-                  nextExecution.fromNow()
-                )}
-              </p>
+              <CountdownTimer
+                targetMs={nextExecutionMs}
+                intervalMs={dca.every * TIME_SCALE_MS[dca.timeScale]}
+              />
             ) : isCompleted ? (
               <p className="text-sm text-foreground-muted flex items-center gap-1">
                 <CheckCircle2 className="w-3 h-3" /> Done
