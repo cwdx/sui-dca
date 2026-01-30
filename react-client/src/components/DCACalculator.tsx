@@ -64,7 +64,7 @@ function formatDate(date: Date): string {
 }
 
 function parseDate(str: string): Date {
-  return new Date(str + "T00:00:00");
+  return new Date(`${str}T00:00:00`);
 }
 
 export function DCACalculator() {
@@ -351,7 +351,8 @@ export function DCACalculator() {
                     Total Invested
                   </p>
                   <p className="text-xl font-mono font-medium mt-1">
-                    {backtest.totalInvested.toLocaleString()} {inputToken.symbol}
+                    {backtest.totalInvested.toLocaleString()}{" "}
+                    {inputToken.symbol}
                   </p>
                   <p className="text-xs text-foreground-muted mt-1">
                     {backtest.trades.length} trades
@@ -466,9 +467,9 @@ export function DCACalculator() {
                         border: "1px solid #e5e5e5",
                         borderRadius: "8px",
                       }}
-                      formatter={(value: number, name: string) => [
-                        `$${value.toFixed(2)}`,
-                        name,
+                      formatter={(value) => [
+                        `$${(value as number).toFixed(2)}`,
+                        "",
                       ]}
                     />
                     <Legend />

@@ -70,7 +70,14 @@
       "Bash(gh api:*)",
       "Bash(gh repo edit:*)",
       "Bash(gh repo view:*)",
-      "Bash(git checkout:*)"
+      "Bash(git checkout:*)",
+      "Bash(git branch:*)",
+      "Bash(gh workflow run:*)",
+      "Bash(gh run list:*)",
+      "Bash(gh run watch:*)",
+      "WebFetch(domain:benchmarks.pyth.network)",
+      "Bash(npx biome:*)",
+      "Bash(git push)"
     ]
   }
 }

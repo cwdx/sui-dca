@@ -163,7 +163,11 @@ export function calculateBacktest(
   const currentPrice = prices[prices.length - 1].price;
 
   // Execute trades at intervals
-  for (let tradeTime = startTime; tradeTime <= endTime; tradeTime += intervalMs) {
+  for (
+    let tradeTime = startTime;
+    tradeTime <= endTime;
+    tradeTime += intervalMs
+  ) {
     const price = findClosestPrice(prices, tradeTime);
     if (!price || price.price <= 0) continue;
 

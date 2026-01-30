@@ -235,7 +235,10 @@ function DCACard({ dca }: { dca: DCAAccount }) {
   const { data: executedTrades = 0 } = useExecutedTradeCount(dca.id);
 
   const hasExecutedTrades = executedTrades > 0;
-  const isCompleted = !dca.active && dca.remainingOrders === 0 && executedTrades === dca.initialOrders;
+  const isCompleted =
+    !dca.active &&
+    dca.remainingOrders === 0 &&
+    executedTrades === dca.initialOrders;
   const isCancelled = !dca.active && executedTrades < dca.initialOrders;
 
   // Use actual executed trades for progress calculation

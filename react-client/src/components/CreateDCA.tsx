@@ -36,7 +36,6 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
 } from "@/components/ui";
 import { TOKEN_LIST, TOKENS, type TokenInfo } from "@/config/tokens";
 import { useNetwork } from "@/contexts/NetworkContext";
@@ -267,7 +266,13 @@ export function CreateDCA() {
     if (`?${search}` !== currentSearch && (search || currentSearch)) {
       window.history.replaceState(null, "", newUrl);
     }
-  }, [inputToken.symbol, outputToken.symbol, amountPerOrder, numOrders, timeScale]);
+  }, [
+    inputToken.symbol,
+    outputToken.symbol,
+    amountPerOrder,
+    numOrders,
+    timeScale,
+  ]);
 
   // Fetch user's balance of input token (with pagination)
   const { data: inputBalance } = useQuery({
@@ -356,10 +361,12 @@ export function CreateDCA() {
     ? BigInt(Math.floor(parseFloat(amountPerOrder) * 10 ** inputToken.decimals))
     : 0n;
   const minFundingPerTrade = globalConfig?.minFundingPerTrade ?? 100000n;
-  const isBelowMinimumFunding = amountPerOrderRaw > 0n && amountPerOrderRaw < minFundingPerTrade;
-  const minFundingFormatted = (Number(minFundingPerTrade) / 10 ** inputToken.decimals).toFixed(
-    inputToken.decimals > 4 ? 4 : inputToken.decimals
-  );
+  const isBelowMinimumFunding =
+    amountPerOrderRaw > 0n && amountPerOrderRaw < minFundingPerTrade;
+  const minFundingFormatted = (
+    Number(minFundingPerTrade) /
+    10 ** inputToken.decimals
+  ).toFixed(inputToken.decimals > 4 ? 4 : inputToken.decimals);
 
   // Format schedule description
   const getScheduleDescription = () => {
@@ -698,7 +705,9 @@ export function CreateDCA() {
                 {["0.1", "10", "25", "100"].map((amount) => (
                   <Button
                     key={amount}
-                    variant={amountPerOrder === amount ? "default" : "secondary"}
+                    variant={
+                      amountPerOrder === amount ? "default" : "secondary"
+                    }
                     size="sm"
                     onClick={() => handleInputChange(setAmountPerOrder)(amount)}
                     className="flex-1"
@@ -724,14 +733,23 @@ export function CreateDCA() {
               <div className="flex items-center justify-between text-xs">
                 {estimatedOutput ? (
                   <p className="text-foreground-muted">
-                    ≈ <span className="font-mono">{estimatedOutput.toFixed(4)}</span>{" "}
+                    ≈{" "}
+                    <span className="font-mono">
+                      {estimatedOutput.toFixed(4)}
+                    </span>{" "}
                     {outputToken.symbol} per trade
                   </p>
                 ) : (
                   <span />
                 )}
                 {globalConfig && (
-                  <p className={isBelowMinimumFunding ? "text-status-error" : "text-foreground-tertiary"}>
+                  <p
+                    className={
+                      isBelowMinimumFunding
+                        ? "text-status-error"
+                        : "text-foreground-tertiary"
+                    }
+                  >
                     Min: {minFundingFormatted}
                   </p>
                 )}
@@ -751,7 +769,9 @@ export function CreateDCA() {
                 ].map((preset) => (
                   <Button
                     key={preset.label}
-                    variant={timeScale === preset.scale ? "default" : "secondary"}
+                    variant={
+                      timeScale === preset.scale ? "default" : "secondary"
+                    }
                     size="sm"
                     onClick={() => {
                       setTimeScale(preset.scale);
