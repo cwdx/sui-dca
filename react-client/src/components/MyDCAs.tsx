@@ -26,7 +26,11 @@ import {
 } from "@/_generated/dca/dca/functions";
 import { DCAPnL, PnLBadge } from "@/components/DCAPnL";
 import { TokenIcon } from "@/components/TokenIcon";
-import { TradeHistory, TradeHistoryCompact } from "@/components/TradeHistory";
+import {
+  TradeHistory,
+  TradeHistoryCompact,
+  useExecutedTradeCount,
+} from "@/components/TradeHistory";
 import { Button, Card, CardContent } from "@/components/ui";
 import { getTokenByType } from "@/config/tokens";
 import { useNetwork } from "@/contexts/NetworkContext";
@@ -226,11 +230,16 @@ function DCACard({ dca }: { dca: DCAAccount }) {
 
   const inputToken = getTokenByType(dca.inputType);
   const outputToken = getTokenByType(dca.outputType);
-  const hasExecutedTrades = dca.initialOrders > dca.remainingOrders;
-  const isCompleted = dca.remainingOrders === 0;
 
-  const progress =
-    ((dca.initialOrders - dca.remainingOrders) / dca.initialOrders) * 100;
+  // Get actual executed trade count from on-chain events
+  const { data: executedTrades = 0 } = useExecutedTradeCount(dca.id);
+
+  const hasExecutedTrades = executedTrades > 0;
+  const isCompleted = !dca.active && dca.remainingOrders === 0 && executedTrades === dca.initialOrders;
+  const isCancelled = !dca.active && executedTrades < dca.initialOrders;
+
+  // Use actual executed trades for progress calculation
+  const progress = (executedTrades / dca.initialOrders) * 100;
   const inputBalance =
     Number(dca.inputBalance) / 10 ** (inputToken?.decimals || 9);
   const perTradeAmount =
@@ -299,11 +308,17 @@ function DCACard({ dca }: { dca: DCAAccount }) {
           bg: "bg-foreground-muted",
           label: "Completed",
         }
-      : {
-          color: "text-status-warning",
-          bg: "bg-status-warning",
-          label: "Paused",
-        };
+      : isCancelled
+        ? {
+            color: "text-status-error",
+            bg: "bg-status-error",
+            label: "Cancelled",
+          }
+        : {
+            color: "text-status-warning",
+            bg: "bg-status-warning",
+            label: "Paused",
+          };
 
   return (
     <Card className="overflow-hidden">
@@ -386,7 +401,7 @@ function DCACard({ dca }: { dca: DCAAccount }) {
               Orders
             </p>
             <p className="font-mono text-lg font-medium">
-              {dca.initialOrders - dca.remainingOrders}
+              {executedTrades}
               <span className="text-foreground-muted text-sm">
                 /{dca.initialOrders}
               </span>

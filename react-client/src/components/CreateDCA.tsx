@@ -4,7 +4,7 @@ import {
   useSuiClient,
 } from "@mysten/dapp-kit";
 import { Transaction } from "@mysten/sui/transactions";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import dayjs from "dayjs";
 import {
   ArrowUpDown,
@@ -19,8 +19,8 @@ import {
   TrendingUp,
   Zap,
 } from "lucide-react";
-import { useState } from "react";
-import { Link, useSearch } from "wouter";
+import { useEffect, useState } from "react";
+import { Link, useLocation, useSearch } from "wouter";
 import { initAccount } from "@/_generated/dca/dca/functions";
 import { TermsDialog, useTermsVersion } from "@/components/TermsAcceptance";
 import { TokenSelectDisplay } from "@/components/TokenIcon";
@@ -153,7 +153,7 @@ const STRATEGY_PRESETS: StrategyPreset[] = [
     icon: <Clock className="w-5 h-5" />,
     inputToken: "USDC",
     outputToken: "SUI",
-    amountPerOrder: "5",
+    amountPerOrder: "0.1",
     numOrders: "24",
     interval: "1",
     timeScale: "hour",
@@ -177,6 +177,7 @@ function useURLParams() {
 export function CreateDCA() {
   const account = useCurrentAccount();
   const client = useSuiClient();
+  const queryClient = useQueryClient();
   const { mutate: signAndExecute, isPending } = useSignAndExecuteTransaction();
   const urlParams = useURLParams();
 
@@ -205,7 +206,7 @@ export function CreateDCA() {
   const [timeScale, setTimeScale] = useState<TimeScale>(() => {
     if (
       urlParams.interval &&
-      ["day", "week", "month"].includes(urlParams.interval)
+      ["minute", "hour", "day", "week", "month"].includes(urlParams.interval)
     ) {
       return urlParams.interval as TimeScale;
     }
@@ -240,13 +241,33 @@ export function CreateDCA() {
   const outputPrice = outputToken.pythPriceId
     ? prices?.get(outputToken.pythPriceId)
     : null;
-  const exchangeRate = calculateExchangeRate(inputPrice, outputPrice);
+  const exchangeRate = calculateExchangeRate(inputToken, outputToken, prices);
 
   // Fetch current terms version
   const { data: termsVersion } = useTermsVersion();
 
   // Fetch global config from on-chain (executor reward, fees, etc.)
   const { data: globalConfig } = useGlobalConfig();
+
+  // URL sync - persist form state in URL
+  const [, setLocation] = useLocation();
+
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (inputToken.symbol !== "USDC") params.set("input", inputToken.symbol);
+    if (outputToken.symbol !== "SUI") params.set("output", outputToken.symbol);
+    if (amountPerOrder) params.set("amount", amountPerOrder);
+    if (numOrders !== "10") params.set("orders", numOrders);
+    if (timeScale !== "day") params.set("interval", timeScale);
+
+    const search = params.toString();
+    const newUrl = search ? `/?${search}` : "/";
+    // Only update if different to avoid infinite loops
+    const currentSearch = window.location.search;
+    if (`?${search}` !== currentSearch && (search || currentSearch)) {
+      window.history.replaceState(null, "", newUrl);
+    }
+  }, [inputToken.symbol, outputToken.symbol, amountPerOrder, numOrders, timeScale]);
 
   // Fetch user's balance of input token (with pagination)
   const { data: inputBalance } = useQuery({
@@ -329,6 +350,16 @@ export function CreateDCA() {
     inputBalance &&
     totalAmountRaw > 0n &&
     inputBalance.balance < totalAmountRaw;
+
+  // Minimum funding validation
+  const amountPerOrderRaw = amountPerOrder
+    ? BigInt(Math.floor(parseFloat(amountPerOrder) * 10 ** inputToken.decimals))
+    : 0n;
+  const minFundingPerTrade = globalConfig?.minFundingPerTrade ?? 100000n;
+  const isBelowMinimumFunding = amountPerOrderRaw > 0n && amountPerOrderRaw < minFundingPerTrade;
+  const minFundingFormatted = (Number(minFundingPerTrade) / 10 ** inputToken.decimals).toFixed(
+    inputToken.decimals > 4 ? 4 : inputToken.decimals
+  );
 
   // Format schedule description
   const getScheduleDescription = () => {
@@ -449,11 +480,18 @@ export function CreateDCA() {
         executorRewardFunds: rewardCoin,
       });
 
+      // Merge remaining rewardCoin back into gas (it's passed as &mut so we still own it)
+      tx.mergeCoins(tx.gas, [rewardCoin]);
+
       signAndExecute(
         { transaction: tx },
         {
           onSuccess: (result) => {
             console.log("DCA created:", result.digest);
+            // Invalidate queries so MyDCAs list updates
+            queryClient.invalidateQueries({ queryKey: ["my-dcas"] });
+            queryClient.invalidateQueries({ queryKey: ["token-balance"] });
+            // Reset form
             setAmountPerOrder("");
             setNumOrders("10");
             setTermsAccepted(false);
@@ -483,6 +521,7 @@ export function CreateDCA() {
     amountPerOrder &&
     numOrders &&
     !hasInsufficientBalance &&
+    !isBelowMinimumFunding &&
     !isStartInPast &&
     termsVersion;
 
@@ -638,6 +677,7 @@ export function CreateDCA() {
             </div>
 
             {/* Amount Per Order */}
+            {/* Amount per Trade */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label>Amount per Trade</Label>
@@ -654,138 +694,104 @@ export function CreateDCA() {
                   </span>
                 )}
               </div>
-              <div className="relative">
-                <Input
-                  type="number"
-                  value={amountPerOrder}
-                  onChange={(e) =>
-                    handleInputChange(setAmountPerOrder)(e.target.value)
-                  }
-                  placeholder="50.00"
-                  className="pr-16 font-mono"
-                />
-                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-foreground-muted">
-                  {inputToken.symbol}
-                </span>
+              <div className="flex gap-2">
+                {["0.1", "10", "25", "100"].map((amount) => (
+                  <Button
+                    key={amount}
+                    variant={amountPerOrder === amount ? "default" : "secondary"}
+                    size="sm"
+                    onClick={() => handleInputChange(setAmountPerOrder)(amount)}
+                    className="flex-1"
+                  >
+                    {amount}
+                  </Button>
+                ))}
+                <div className="relative w-28 shrink-0">
+                  <Input
+                    type="number"
+                    value={amountPerOrder}
+                    onChange={(e) =>
+                      handleInputChange(setAmountPerOrder)(e.target.value)
+                    }
+                    placeholder="Custom"
+                    className="pr-10 font-mono text-right"
+                  />
+                  <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-foreground-muted pointer-events-none">
+                    {inputToken.symbol}
+                  </span>
+                </div>
               </div>
-              {estimatedOutput && (
-                <p className="text-xs text-foreground-muted">
-                  ≈{" "}
-                  <span className="font-mono">
-                    {estimatedOutput.toFixed(4)}
-                  </span>{" "}
-                  {outputToken.symbol} per trade
-                </p>
-              )}
-            </div>
-
-            {/* Amount Shortcuts */}
-            <div className="flex gap-2">
-              {["10", "25", "50", "100"].map((amount) => (
-                <Button
-                  key={amount}
-                  variant={amountPerOrder === amount ? "default" : "secondary"}
-                  size="sm"
-                  onClick={() => handleInputChange(setAmountPerOrder)(amount)}
-                  className="flex-1"
-                >
-                  {amount}
-                </Button>
-              ))}
+              <div className="flex items-center justify-between text-xs">
+                {estimatedOutput ? (
+                  <p className="text-foreground-muted">
+                    ≈ <span className="font-mono">{estimatedOutput.toFixed(4)}</span>{" "}
+                    {outputToken.symbol} per trade
+                  </p>
+                ) : (
+                  <span />
+                )}
+                {globalConfig && (
+                  <p className={isBelowMinimumFunding ? "text-status-error" : "text-foreground-tertiary"}>
+                    Min: {minFundingFormatted}
+                  </p>
+                )}
+              </div>
             </div>
 
             {/* Frequency */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Every</Label>
-                <Input
-                  type="number"
-                  value={interval}
-                  onChange={(e) =>
-                    handleInputChange(setInterval)(e.target.value)
-                  }
-                  min="1"
-                  className="font-mono"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Period</Label>
-                <Select
-                  value={timeScale}
-                  onValueChange={(v) => {
-                    setTimeScale(v as TimeScale);
-                    setSelectedPreset(null);
-                  }}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="minute">Minutes</SelectItem>
-                    <SelectItem value="hour">Hours</SelectItem>
-                    <SelectItem value="day">Days</SelectItem>
-                    <SelectItem value="week">Weeks</SelectItem>
-                    <SelectItem value="month">Months</SelectItem>
-                  </SelectContent>
-                </Select>
+            <div className="space-y-2">
+              <Label>Frequency</Label>
+              <div className="flex gap-2">
+                {[
+                  { label: "Minute", scale: "minute" as TimeScale },
+                  { label: "Hourly", scale: "hour" as TimeScale },
+                  { label: "Daily", scale: "day" as TimeScale },
+                  { label: "Weekly", scale: "week" as TimeScale },
+                  { label: "Monthly", scale: "month" as TimeScale },
+                ].map((preset) => (
+                  <Button
+                    key={preset.label}
+                    variant={timeScale === preset.scale ? "default" : "secondary"}
+                    size="sm"
+                    onClick={() => {
+                      setTimeScale(preset.scale);
+                      setSelectedPreset(null);
+                    }}
+                    className="flex-1"
+                  >
+                    {preset.label}
+                  </Button>
+                ))}
               </div>
             </div>
 
-            {/* Quick Schedule Shortcuts */}
-            <div className="flex gap-2">
-              {[
-                { label: "Hourly", interval: "1", scale: "hour" as TimeScale },
-                { label: "Daily", interval: "1", scale: "day" as TimeScale },
-                { label: "Weekly", interval: "1", scale: "week" as TimeScale },
-              ].map((preset) => (
-                <Button
-                  key={preset.label}
-                  variant={
-                    interval === preset.interval && timeScale === preset.scale
-                      ? "default"
-                      : "secondary"
-                  }
-                  size="sm"
-                  onClick={() => {
-                    setInterval(preset.interval);
-                    setTimeScale(preset.scale);
-                    setSelectedPreset(null);
-                  }}
-                  className="flex-1"
-                >
-                  {preset.label}
-                </Button>
-              ))}
-            </div>
-
-            {/* Number of Orders */}
+            {/* Number of Trades */}
             <div className="space-y-2">
               <Label>Number of Trades</Label>
-              <Input
-                type="number"
-                value={numOrders}
-                onChange={(e) =>
-                  handleInputChange(setNumOrders)(e.target.value)
-                }
-                min="1"
-                max="1000"
-                className="font-mono"
-              />
-            </div>
-
-            {/* Trade count shortcuts */}
-            <div className="flex gap-2">
-              {["7", "14", "30", "52"].map((count) => (
-                <Button
-                  key={count}
-                  variant={numOrders === count ? "default" : "secondary"}
-                  size="sm"
-                  onClick={() => handleInputChange(setNumOrders)(count)}
-                  className="flex-1"
-                >
-                  {count}
-                </Button>
-              ))}
+              <div className="flex gap-2">
+                {["7", "14", "30", "52"].map((count) => (
+                  <Button
+                    key={count}
+                    variant={numOrders === count ? "default" : "secondary"}
+                    size="sm"
+                    onClick={() => handleInputChange(setNumOrders)(count)}
+                    className="flex-1"
+                  >
+                    {count}
+                  </Button>
+                ))}
+                <Input
+                  type="number"
+                  value={numOrders}
+                  onChange={(e) =>
+                    handleInputChange(setNumOrders)(e.target.value)
+                  }
+                  min="1"
+                  max="1000"
+                  placeholder="#"
+                  className="font-mono w-16 shrink-0 text-center"
+                />
+              </div>
             </div>
 
             {/* Start Time */}
@@ -898,8 +904,17 @@ export function CreateDCA() {
               </div>
             )}
 
+            {/* Below minimum funding warning */}
+            {isBelowMinimumFunding && (
+              <div className="rounded-lg border border-status-error/20 bg-status-error-bg p-3 text-sm text-status-error">
+                Amount per trade is below minimum. Minimum is{" "}
+                <span className="font-mono">{minFundingFormatted}</span>{" "}
+                {inputToken.symbol} per trade.
+              </div>
+            )}
+
             {/* Insufficient balance warning */}
-            {hasInsufficientBalance && (
+            {hasInsufficientBalance && !isBelowMinimumFunding && (
               <div className="rounded-lg border border-status-warning/20 bg-status-warning-bg p-3 text-sm text-status-warning">
                 Insufficient {inputToken.symbol} balance. You have{" "}
                 <span className="font-mono">

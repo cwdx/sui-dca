@@ -1,4 +1,13 @@
-import { ArrowRight, Calculator, TrendingUp, Zap } from "lucide-react";
+import {
+  ArrowRight,
+  Calculator,
+  CalendarDays,
+  History,
+  Loader2,
+  TrendingDown,
+  TrendingUp,
+  Zap,
+} from "lucide-react";
 import { useMemo, useState } from "react";
 import {
   Area,
@@ -27,91 +36,55 @@ import {
   SelectValue,
 } from "@/components/ui";
 import { TOKEN_LIST, TOKENS, type TokenInfo } from "@/config/tokens";
+import {
+  calculateBacktest,
+  hasHistoricalData,
+  useHistoricalPrices,
+} from "@/hooks/useHistoricalPrices";
 import { calculateExchangeRate, usePythPrices } from "@/hooks/usePythPrices";
 
-type TimeScale = "day" | "week" | "month";
+type Interval = "daily" | "weekly" | "monthly";
 
-const TIME_SCALE_DAYS: Record<TimeScale, number> = {
-  day: 1,
-  week: 7,
-  month: 30,
+const INTERVAL_DAYS: Record<Interval, number> = {
+  daily: 1,
+  weekly: 7,
+  monthly: 30,
 };
 
-interface SimulationPoint {
-  date: string;
-  invested: number;
-  dcaValue: number;
-  lumpSumValue: number;
-  tokensAcquired: number;
-  avgPrice: number;
+// Preset date ranges
+const DATE_PRESETS = [
+  { label: "1M", days: 30 },
+  { label: "3M", days: 90 },
+  { label: "6M", days: 180 },
+  { label: "1Y", days: 365 },
+] as const;
+
+function formatDate(date: Date): string {
+  return date.toISOString().split("T")[0];
 }
 
-// Simulate DCA with historical-like price variations
-function simulateDCA(
-  amountPerOrder: number,
-  numOrders: number,
-  interval: TimeScale,
-  currentPrice: number,
-  volatility: number = 0.15, // 15% price volatility
-): SimulationPoint[] {
-  const points: SimulationPoint[] = [];
-  let totalInvested = 0;
-  let tokensAcquired = 0;
-  const daysPerOrder = TIME_SCALE_DAYS[interval];
-  const initialPrice = currentPrice;
-
-  // Generate simulated price path with mean reversion
-  const prices: number[] = [];
-  let price = initialPrice * (1 + (Math.random() - 0.5) * volatility * 2);
-
-  for (let i = 0; i < numOrders; i++) {
-    // Random walk with mean reversion to current price
-    const drift = (currentPrice - price) * 0.1;
-    const shock = (Math.random() - 0.5) * volatility * price;
-    price = Math.max(price * 0.5, price + drift + shock);
-    prices.push(price);
-  }
-
-  for (let i = 0; i < numOrders; i++) {
-    const orderPrice = prices[i];
-    const tokensThisOrder = amountPerOrder / orderPrice;
-
-    totalInvested += amountPerOrder;
-    tokensAcquired += tokensThisOrder;
-
-    const avgPrice = totalInvested / tokensAcquired;
-    const dcaValue = tokensAcquired * currentPrice;
-    const lumpSumTokens = (amountPerOrder * numOrders) / prices[0];
-    const lumpSumValue = lumpSumTokens * currentPrice;
-
-    const date = new Date();
-    date.setDate(date.getDate() + i * daysPerOrder);
-
-    points.push({
-      date: date.toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-      }),
-      invested: totalInvested,
-      dcaValue,
-      lumpSumValue,
-      tokensAcquired,
-      avgPrice,
-    });
-  }
-
-  return points;
+function parseDate(str: string): Date {
+  return new Date(str + "T00:00:00");
 }
 
 export function DCACalculator() {
-  // Form state
+  // Token selection
   const [inputToken, setInputToken] = useState<TokenInfo>(TOKENS.USDC);
   const [outputToken, setOutputToken] = useState<TokenInfo>(TOKENS.SUI);
-  const [amountPerOrder, setAmountPerOrder] = useState("100");
-  const [numOrders, setNumOrders] = useState("12");
-  const [interval, setInterval] = useState<TimeScale>("week");
 
-  // Fetch prices
+  // Strategy config
+  const [amountPerTrade, setAmountPerTrade] = useState("100");
+  const [interval, setInterval] = useState<Interval>("weekly");
+
+  // Date range
+  const [endDate, setEndDate] = useState(() => formatDate(new Date()));
+  const [startDate, setStartDate] = useState(() => {
+    const d = new Date();
+    d.setMonth(d.getMonth() - 3);
+    return formatDate(d);
+  });
+
+  // Fetch current prices for display
   const { data: prices } = usePythPrices(TOKEN_LIST);
   const inputPrice = inputToken.pythPriceId
     ? prices?.get(inputToken.pythPriceId)
@@ -119,42 +92,61 @@ export function DCACalculator() {
   const outputPrice = outputToken.pythPriceId
     ? prices?.get(outputToken.pythPriceId)
     : null;
-  const exchangeRate = calculateExchangeRate(inputPrice, outputPrice);
+  const currentRate = calculateExchangeRate(inputToken, outputToken, prices);
 
-  // Calculate simulation
-  const simulation = useMemo(() => {
-    const amount = parseFloat(amountPerOrder) || 0;
-    const orders = parseInt(numOrders) || 0;
-    if (amount <= 0 || orders <= 0 || !exchangeRate) return null;
+  // Fetch historical prices
+  const {
+    data: historicalPrices,
+    isLoading,
+    isError,
+  } = useHistoricalPrices(
+    inputToken,
+    outputToken,
+    parseDate(startDate),
+    parseDate(endDate),
+  );
 
-    return simulateDCA(amount, orders, interval, exchangeRate);
-  }, [amountPerOrder, numOrders, interval, exchangeRate]);
+  // Calculate backtest results
+  const backtest = useMemo(() => {
+    if (!historicalPrices) return null;
+    const amount = parseFloat(amountPerTrade) || 0;
+    if (amount <= 0) return null;
+    return calculateBacktest(historicalPrices, amount, INTERVAL_DAYS[interval]);
+  }, [historicalPrices, amountPerTrade, interval]);
 
-  // Summary stats
-  const totalInvested =
-    (parseFloat(amountPerOrder) || 0) * (parseInt(numOrders) || 0);
-  const finalTokens = simulation?.[simulation.length - 1]?.tokensAcquired || 0;
-  const avgPrice = simulation?.[simulation.length - 1]?.avgPrice || 0;
-  const currentValue = finalTokens * (exchangeRate || 0);
+  // Check if tokens have historical data
+  const inputHasHistory = hasHistoricalData(inputToken);
+  const outputHasHistory = hasHistoricalData(outputToken);
+  const canBacktest = inputHasHistory && outputHasHistory;
 
-  // Deep link to create real DCA
-  const createDCALink = `/create?input=${inputToken.symbol}&output=${outputToken.symbol}&amount=${amountPerOrder}&orders=${numOrders}&interval=${interval}`;
+  // Set preset date range
+  const setPreset = (days: number) => {
+    const end = new Date();
+    const start = new Date();
+    start.setDate(start.getDate() - days);
+    setEndDate(formatDate(end));
+    setStartDate(formatDate(start));
+  };
 
   const handleFlip = () => {
     setInputToken(outputToken);
     setOutputToken(inputToken);
   };
 
+  // Deep link to create real DCA (dashboard with params)
+  const createDCALink = `/?input=${inputToken.symbol}&output=${outputToken.symbol}&amount=${amountPerTrade}&interval=${interval}`;
+
   return (
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <p className="overline mb-2">Simulation</p>
+        <p className="overline mb-2">Historical Backtest</p>
         <h1 className="text-h2 font-serif text-foreground-primary">
           DCA Calculator
         </h1>
         <p className="text-foreground-secondary mt-2">
-          Simulate your DCA strategy and see projected outcomes
+          See how DCA would have performed using real historical prices from
+          Pyth
         </p>
       </div>
 
@@ -164,7 +156,7 @@ export function DCACalculator() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Calculator className="w-5 h-5" />
-              Configure Strategy
+              Configure Backtest
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -199,7 +191,6 @@ export function DCACalculator() {
                 </Select>
               </div>
 
-              {/* Flip Button */}
               <div className="flex justify-center">
                 <Button
                   variant="ghost"
@@ -243,14 +234,14 @@ export function DCACalculator() {
               </div>
             </div>
 
-            {/* Amount & Schedule */}
+            {/* Amount */}
             <div className="space-y-2">
               <Label>Amount per Trade</Label>
               <div className="relative">
                 <Input
                   type="number"
-                  value={amountPerOrder}
-                  onChange={(e) => setAmountPerOrder(e.target.value)}
+                  value={amountPerTrade}
+                  onChange={(e) => setAmountPerTrade(e.target.value)}
                   placeholder="100"
                   className="pr-16 font-mono"
                 />
@@ -260,14 +251,13 @@ export function DCACalculator() {
               </div>
             </div>
 
-            {/* Shortcuts */}
             <div className="flex gap-2">
               {["50", "100", "250", "500"].map((amount) => (
                 <Button
                   key={amount}
-                  variant={amountPerOrder === amount ? "default" : "secondary"}
+                  variant={amountPerTrade === amount ? "default" : "secondary"}
                   size="sm"
-                  onClick={() => setAmountPerOrder(amount)}
+                  onClick={() => setAmountPerTrade(amount)}
                   className="flex-1"
                 >
                   ${amount}
@@ -275,47 +265,74 @@ export function DCACalculator() {
               ))}
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Frequency</Label>
-                <Select
-                  value={interval}
-                  onValueChange={(v) => setInterval(v as TimeScale)}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="day">Daily</SelectItem>
-                    <SelectItem value="week">Weekly</SelectItem>
-                    <SelectItem value="month">Monthly</SelectItem>
-                  </SelectContent>
-                </Select>
+            {/* Frequency */}
+            <div className="space-y-2">
+              <Label>Frequency</Label>
+              <Select
+                value={interval}
+                onValueChange={(v) => setInterval(v as Interval)}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="daily">Daily</SelectItem>
+                  <SelectItem value="weekly">Weekly</SelectItem>
+                  <SelectItem value="monthly">Monthly</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Date Range */}
+            <div className="space-y-3">
+              <Label className="flex items-center gap-2">
+                <CalendarDays className="w-4 h-4" />
+                Date Range
+              </Label>
+
+              <div className="flex gap-2">
+                {DATE_PRESETS.map((preset) => (
+                  <Button
+                    key={preset.label}
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => setPreset(preset.days)}
+                    className="flex-1"
+                  >
+                    {preset.label}
+                  </Button>
+                ))}
               </div>
 
-              <div className="space-y-2">
-                <Label>Duration</Label>
-                <Select value={numOrders} onValueChange={setNumOrders}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="4">4 trades</SelectItem>
-                    <SelectItem value="8">8 trades</SelectItem>
-                    <SelectItem value="12">12 trades</SelectItem>
-                    <SelectItem value="24">24 trades</SelectItem>
-                    <SelectItem value="52">52 trades</SelectItem>
-                  </SelectContent>
-                </Select>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <span className="text-xs text-foreground-muted">From</span>
+                  <Input
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                    className="font-mono text-sm"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <span className="text-xs text-foreground-muted">To</span>
+                  <Input
+                    type="date"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    max={formatDate(new Date())}
+                    className="font-mono text-sm"
+                  />
+                </div>
               </div>
             </div>
 
-            {/* Exchange Rate */}
-            {exchangeRate && (
+            {/* Current Rate */}
+            {currentRate && (
               <div className="rounded-lg bg-background-tertiary p-3 text-sm">
                 <p className="text-foreground-muted">Current Rate</p>
                 <p className="font-mono text-foreground-primary">
-                  1 {inputToken.symbol} = {exchangeRate.toFixed(6)}{" "}
+                  1 {inputToken.symbol} = {currentRate.toFixed(6)}{" "}
                   {outputToken.symbol}
                 </p>
               </div>
@@ -323,64 +340,113 @@ export function DCACalculator() {
           </CardContent>
         </Card>
 
-        {/* Charts */}
+        {/* Results */}
         <div className="lg:col-span-2 space-y-6">
           {/* Summary Cards */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Card>
-              <CardContent className="pt-4">
-                <p className="text-xs text-foreground-muted uppercase tracking-wide">
-                  Total Invested
-                </p>
-                <p className="text-xl font-mono font-medium mt-1">
-                  {totalInvested.toLocaleString()} {inputToken.symbol}
-                </p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="pt-4">
-                <p className="text-xs text-foreground-muted uppercase tracking-wide">
-                  Tokens Acquired
-                </p>
-                <p className="text-xl font-mono font-medium mt-1">
-                  {finalTokens.toFixed(4)} {outputToken.symbol}
-                </p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="pt-4">
-                <p className="text-xs text-foreground-muted uppercase tracking-wide">
-                  Avg. Buy Price
-                </p>
-                <p className="text-xl font-mono font-medium mt-1">
-                  {avgPrice > 0 ? avgPrice.toFixed(6) : "-"} {inputToken.symbol}
-                </p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="pt-4">
-                <p className="text-xs text-foreground-muted uppercase tracking-wide">
-                  Current Value
-                </p>
-                <p className="text-xl font-mono font-medium mt-1">
-                  {currentValue.toFixed(4)} {outputToken.symbol}
-                </p>
-              </CardContent>
-            </Card>
-          </div>
+          {backtest ? (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <Card>
+                <CardContent className="pt-4">
+                  <p className="text-xs text-foreground-muted uppercase tracking-wide">
+                    Total Invested
+                  </p>
+                  <p className="text-xl font-mono font-medium mt-1">
+                    {backtest.totalInvested.toLocaleString()} {inputToken.symbol}
+                  </p>
+                  <p className="text-xs text-foreground-muted mt-1">
+                    {backtest.trades.length} trades
+                  </p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="pt-4">
+                  <p className="text-xs text-foreground-muted uppercase tracking-wide">
+                    Tokens Acquired
+                  </p>
+                  <p className="text-xl font-mono font-medium mt-1">
+                    {backtest.dcaTokensAcquired.toFixed(4)} {outputToken.symbol}
+                  </p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="pt-4">
+                  <p className="text-xs text-foreground-muted uppercase tracking-wide">
+                    Avg. Buy Price
+                  </p>
+                  <p className="text-xl font-mono font-medium mt-1">
+                    {backtest.dcaAvgPrice.toFixed(6)}
+                  </p>
+                  <p className="text-xs text-foreground-muted mt-1">
+                    {inputToken.symbol}/{outputToken.symbol}
+                  </p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="pt-4">
+                  <p className="text-xs text-foreground-muted uppercase tracking-wide">
+                    Return
+                  </p>
+                  <p
+                    className={`text-xl font-mono font-medium mt-1 flex items-center gap-1 ${
+                      backtest.dcaReturn >= 0
+                        ? "text-status-success"
+                        : "text-status-error"
+                    }`}
+                  >
+                    {backtest.dcaReturn >= 0 ? (
+                      <TrendingUp className="w-4 h-4" />
+                    ) : (
+                      <TrendingDown className="w-4 h-4" />
+                    )}
+                    {backtest.dcaReturn >= 0 ? "+" : ""}
+                    {backtest.dcaReturn.toFixed(2)}%
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {[1, 2, 3, 4].map((i) => (
+                <Card key={i}>
+                  <CardContent className="pt-4">
+                    <div className="h-4 bg-background-tertiary rounded w-20 mb-2" />
+                    <div className="h-6 bg-background-tertiary rounded w-24" />
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
 
-          {/* Value Chart */}
+          {/* Chart */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <TrendingUp className="w-5 h-5" />
-                DCA vs Lump Sum
+                <History className="w-5 h-5" />
+                Historical Performance
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {simulation && simulation.length > 0 ? (
+              {!canBacktest ? (
+                <div className="h-[300px] flex flex-col items-center justify-center text-foreground-muted gap-2">
+                  <span>
+                    Historical data not available for{" "}
+                    {!inputHasHistory ? inputToken.symbol : outputToken.symbol}
+                  </span>
+                </div>
+              ) : isLoading ? (
+                <div className="h-[300px] flex flex-col items-center justify-center text-foreground-muted gap-2">
+                  <Loader2 className="w-6 h-6 animate-spin" />
+                  <span>Loading historical prices from Pyth...</span>
+                </div>
+              ) : isError ? (
+                <div className="h-[300px] flex flex-col items-center justify-center text-foreground-muted gap-2">
+                  <span className="text-status-error">
+                    Failed to load historical data. Try a different date range.
+                  </span>
+                </div>
+              ) : backtest && backtest.trades.length > 0 ? (
                 <ResponsiveContainer width="100%" height={300}>
-                  <AreaChart data={simulation}>
+                  <AreaChart data={backtest.trades}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#e5e5e5" />
                     <XAxis
                       dataKey="date"
@@ -390,7 +456,9 @@ export function DCACalculator() {
                     <YAxis
                       tick={{ fontSize: 12 }}
                       stroke="#737373"
-                      tickFormatter={(v) => `$${v.toLocaleString()}`}
+                      tickFormatter={(v) =>
+                        `$${v >= 1000 ? `${(v / 1000).toFixed(1)}k` : v.toFixed(0)}`
+                      }
                     />
                     <Tooltip
                       contentStyle={{
@@ -398,7 +466,10 @@ export function DCACalculator() {
                         border: "1px solid #e5e5e5",
                         borderRadius: "8px",
                       }}
-                      formatter={(value) => [`$${Number(value).toFixed(2)}`]}
+                      formatter={(value: number, name: string) => [
+                        `$${value.toFixed(2)}`,
+                        name,
+                      ]}
                     />
                     <Legend />
                     <Area
@@ -412,24 +483,16 @@ export function DCACalculator() {
                     <Area
                       type="monotone"
                       dataKey="dcaValue"
-                      name="DCA Value"
+                      name="Portfolio Value"
                       stroke="#0a0a0a"
                       fill="#0a0a0a"
-                      fillOpacity={0.1}
-                    />
-                    <Area
-                      type="monotone"
-                      dataKey="lumpSumValue"
-                      name="Lump Sum Value"
-                      stroke="#166534"
-                      fill="#166534"
                       fillOpacity={0.1}
                     />
                   </AreaChart>
                 </ResponsiveContainer>
               ) : (
-                <div className="h-[300px] flex items-center justify-center text-foreground-muted">
-                  Configure your strategy to see projections
+                <div className="h-[300px] flex flex-col items-center justify-center text-foreground-muted gap-2">
+                  <span>No trades in selected date range</span>
                 </div>
               )}
             </CardContent>

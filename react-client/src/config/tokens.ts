@@ -19,7 +19,7 @@ const PYTH_PRICE_IDS = {
   USDT: "2b89b9dc8fdf9f34709a5b106b472f0f39bb6ca9ce04b0fd7f2e971688e2e53b",
   ETH: "ff61491a931112ddf1bd8147cd1b641375f79f5825126d665480874634fd0ace",
   BTC: "e62df6c8b4a85fe1a67db44dc12de5db330f7ac66b72dc658afedf0f4a415b43",
-  DEEP: "29bdd5248234e33bd93d3b81100b5fa32eaa5997843847e2c2cb16d7db9ee2ba",
+  DEEP: null, // Price ID not available on Pyth Hermes
   CETUS: "e5b274b2611143df055d6e7cd8d93fe1961716bcd4dca1cad87a83bc1e78c1ef",
   WAL: null, // No Pyth feed yet
 };
@@ -51,7 +51,7 @@ export const TOKENS: Record<string, TokenInfo> = {
     name: "DeepBook",
     type: "0xdeeb7a4662eec9f2f3def03fb937a663dddaa2e215b8078a284d026b7946c270::deep::DEEP",
     decimals: 6,
-    pythPriceId: PYTH_PRICE_IDS.DEEP,
+    pythPriceId: PYTH_PRICE_IDS.DEEP ?? undefined,
   },
   CETUS: {
     symbol: "CETUS",

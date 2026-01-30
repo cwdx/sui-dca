@@ -5,6 +5,51 @@ import { ArrowRight, Clock, ExternalLink } from "lucide-react";
 import type { TokenInfo } from "@/config/tokens";
 import { useNetwork } from "@/contexts/NetworkContext";
 
+/**
+ * Hook to get the actual number of executed trades for a DCA from on-chain events.
+ * This is more accurate than using (initialOrders - remainingOrders) which can be
+ * misleading when a DCA is cancelled.
+ */
+export function useExecutedTradeCount(dcaId: string | undefined) {
+  const client = useSuiClient();
+  const { contracts, network } = useNetwork();
+
+  return useQuery({
+    queryKey: ["executed-trade-count", network, dcaId],
+    queryFn: async () => {
+      if (!dcaId) return 0;
+
+      let count = 0;
+      let cursor: { txDigest: string; eventSeq: string } | null | undefined;
+
+      do {
+        const response = await client.queryEvents({
+          query: {
+            MoveEventType: `${contracts.packageId}::dca::TradeCompletedEvent`,
+          },
+          limit: 50,
+          order: "descending",
+          cursor,
+        });
+
+        for (const event of response.data) {
+          const parsed = event.parsedJson as any;
+          if (parsed?.dca_id === dcaId) {
+            count++;
+          }
+        }
+
+        cursor = response.hasNextPage ? response.nextCursor : null;
+      } while (cursor);
+
+      return count;
+    },
+    enabled: !!dcaId,
+    staleTime: 30000,
+    refetchInterval: 30000,
+  });
+}
+
 interface TradeEvent {
   type: "initiated" | "completed";
   timestamp: number;

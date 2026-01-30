@@ -43,13 +43,11 @@ function Header() {
     <header className="border-b border-border">
       <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
         <div className="flex items-center gap-8">
-          <Link href="/">
-            <a className="flex items-center gap-3">
-              <img src="/sui.svg" alt="Sui" className="w-8 h-8" />
-              <span className="text-h4 font-serif text-foreground-primary">
-                Sui DCA
-              </span>
-            </a>
+          <Link href="/" className="flex items-center gap-3">
+            <img src="/sui.svg" alt="Sui" className="w-8 h-8" />
+            <span className="text-h4 font-serif text-foreground-primary">
+              Sui DCA
+            </span>
           </Link>
 
           <nav className="flex items-center gap-1">
@@ -144,18 +142,6 @@ function Dashboard() {
   );
 }
 
-function CreatePage() {
-  return (
-    <div className="max-w-xl mx-auto">
-      <p className="overline mb-2">New Strategy</p>
-      <h2 className="text-h2 font-serif text-foreground-primary mb-6">
-        Create DCA
-      </h2>
-      <CreateDCA />
-    </div>
-  );
-}
-
 function CalculatorPage() {
   return <DCACalculator />;
 }
@@ -188,7 +174,6 @@ function AppContent() {
           {account ? (
             <>
               <Route path="/" component={Dashboard} />
-              <Route path="/create" component={CreatePage} />
               <Route path="/admin" component={AdminPage} />
             </>
           ) : (
