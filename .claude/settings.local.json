@@ -77,7 +77,12 @@
       "Bash(gh run watch:*)",
       "WebFetch(domain:benchmarks.pyth.network)",
       "Bash(npx biome:*)",
-      "Bash(git push)"
+      "Bash(git push)",
+      "mcp__chrome-devtools__new_page",
+      "mcp__chrome-devtools__navigate_page",
+      "mcp__chrome-devtools__list_console_messages",
+      "mcp__chrome-devtools__list_network_requests",
+      "mcp__chrome-devtools__take_screenshot"
     ]
   }
 }

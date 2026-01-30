@@ -44,7 +44,7 @@ function Header() {
       <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
         <div className="flex items-center gap-8">
           <Link href="/" className="flex items-center gap-3">
-            <img src="/sui.svg" alt="Sui" className="w-8 h-8" />
+            <img src={`${import.meta.env.BASE_URL}sui.svg`} alt="Sui" className="w-8 h-8" />
             <span className="text-h4 font-serif text-foreground-primary">
               Sui DCA
             </span>

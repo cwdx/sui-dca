@@ -15,11 +15,17 @@ interface NetworkContextValue {
   explorerTxUrl: (digest: string) => string;
   explorerAddressUrl: (address: string) => string;
   explorerObjectUrl: (objectId: string) => string;
+  walrusUrl: (blobId: string) => string;
 }
 
 const EXPLORER_URLS: Record<Network, string> = {
   mainnet: "https://suiscan.xyz/mainnet",
   testnet: "https://suiscan.xyz/testnet",
+};
+
+const WALRUS_AGGREGATORS: Record<Network, string> = {
+  mainnet: "https://aggregator.walrus-mainnet.walrus.space/v1/blobs",
+  testnet: "https://aggregator.walrus-testnet.walrus.space/v1/blobs",
 };
 
 const NetworkContext = createContext<NetworkContextValue | null>(null);
@@ -61,6 +67,12 @@ export function NetworkProvider({ children }: { children: ReactNode }) {
     [explorerUrl],
   );
 
+  const walrusAggregator = WALRUS_AGGREGATORS[network];
+  const walrusUrl = useCallback(
+    (blobId: string) => `${walrusAggregator}/${blobId}`,
+    [walrusAggregator],
+  );
+
   return (
     <NetworkContext.Provider
       value={{
@@ -71,6 +83,7 @@ export function NetworkProvider({ children }: { children: ReactNode }) {
         explorerTxUrl,
         explorerAddressUrl,
         explorerObjectUrl,
+        walrusUrl,
       }}
     >
       {children}
