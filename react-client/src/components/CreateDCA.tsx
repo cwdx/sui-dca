@@ -542,12 +542,12 @@ export function CreateDCA() {
           <h2 className="text-lg font-serif text-foreground-primary mb-3">
             Quick Start Strategies
           </h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3">
             {STRATEGY_PRESETS.map((preset) => (
               <button
                 key={preset.id}
                 onClick={() => applyPreset(preset)}
-                className={`relative text-left p-4 rounded-xl border transition-all ${
+                className={`relative text-left p-3 sm:p-4 rounded-xl border transition-all ${
                   selectedPreset === preset.id
                     ? "border-accent bg-accent/5 ring-1 ring-accent"
                     : `bg-gradient-to-br ${preset.color} hover:border-foreground-muted`

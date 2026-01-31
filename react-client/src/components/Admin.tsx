@@ -83,7 +83,7 @@ function ExecutorStatus() {
             </div>
           ) : (
             <div className="space-y-4">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 text-sm">
                 <div>
                   <p className="text-foreground-tertiary mb-1">Status</p>
                   <div className="flex items-center gap-2">
@@ -131,8 +131,7 @@ function ExecutorStatus() {
                     size="sm"
                     onClick={() => setShowQRDialog(true)}
                     className="shrink-0"
-                    disabled={!account}
-                    title={account ? "Show QR Code" : "Connect wallet to fund executor"}
+                    title="Show QR Code"
                   >
                     <QrCode className="w-4 h-4" />
                   </Button>
@@ -146,6 +145,37 @@ function ExecutorStatus() {
                 <p className="text-xs text-foreground-muted mt-2">
                   Fund this address to ensure the executor can pay gas fees for trade execution.
                 </p>
+                {/* Fund Executor */}
+                <div className="mt-4 pt-4 border-t border-border">
+                  <p className="text-xs text-foreground-tertiary mb-2">Fund Executor</p>
+                  {account ? (
+                    <div className="flex items-center gap-2">
+                      <Input
+                        type="number"
+                        placeholder="Amount in SUI"
+                        className="font-mono flex-1"
+                        step="0.1"
+                        min="0"
+                      />
+                      <Button size="sm" disabled>
+                        Send SUI
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-3">
+                      <Input
+                        type="number"
+                        placeholder="Amount in SUI"
+                        className="font-mono flex-1"
+                        disabled
+                      />
+                      <ConnectButton />
+                    </div>
+                  )}
+                  <p className="text-xs text-foreground-muted mt-2">
+                    Connect wallet to send SUI to the executor.
+                  </p>
+                </div>
               </div>
 
               {apiUrl && (
@@ -508,7 +538,7 @@ export function Admin() {
         </CardHeader>
         <CardContent>
           {config ? (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-sm">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 text-sm">
               <div>
                 <p className="text-foreground-tertiary mb-1">Status</p>
                 <Badge variant={config.paused ? "error" : "success"}>
@@ -768,7 +798,7 @@ export function Admin() {
         <CardContent>
           {terms ? (
             <div className="space-y-4">
-              <div className="grid grid-cols-3 gap-6 text-sm">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 text-sm">
                 <div>
                   <p className="text-foreground-tertiary mb-1">Current Version</p>
                   <p className="font-mono">{terms.currentVersion}</p>

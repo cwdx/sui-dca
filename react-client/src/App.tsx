@@ -1,5 +1,6 @@
 import { ConnectButton, useCurrentAccount } from "@mysten/dapp-kit";
-import { Calculator, ExternalLink, Activity, Wallet } from "lucide-react";
+import { Calculator, ExternalLink, Activity, Wallet, Menu, X } from "lucide-react";
+import { useState } from "react";
 import { Link, Route, Router, Switch, useLocation } from "wouter";
 import { AccountMenu } from "@/components/AccountMenu";
 import { Admin } from "@/components/Admin";
@@ -41,29 +42,50 @@ function NavLink({
 
 function Header() {
   const account = useCurrentAccount();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
     <header className="border-b border-border">
       <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-8">
-          <Link href="/" className="flex items-center gap-3">
-            <img src={`${import.meta.env.BASE_URL}sui.svg`} alt="Sui" className="w-8 h-8" />
-            <span className="text-h4 font-serif text-foreground-primary">
+        <div className="flex items-center gap-4 md:gap-8">
+          <Link href="/" className="flex items-center gap-2 md:gap-3">
+            <img src={`${import.meta.env.BASE_URL}sui.svg`} alt="Sui" className="w-7 h-7 md:w-8 md:h-8" />
+            <span className="text-lg md:text-h4 font-serif text-foreground-primary">
               Sui DCA
             </span>
           </Link>
 
-          <nav className="flex items-center gap-1">
+          {/* Desktop nav */}
+          <nav className="hidden md:flex items-center gap-1">
             <NavLink href="/">Dashboard</NavLink>
             <NavLink href="/calculator">Calculator</NavLink>
             <NavLink href="/admin">Admin</NavLink>
           </nav>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 md:gap-4">
           {account ? <AccountMenu /> : <ConnectButton />}
+
+          {/* Mobile menu button */}
+          <Button
+            variant="ghost"
+            size="sm"
+            className="md:hidden p-2"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          >
+            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </Button>
         </div>
       </div>
+
+      {/* Mobile nav */}
+      {mobileMenuOpen && (
+        <nav className="md:hidden border-t border-border px-4 py-2 flex flex-col gap-1 bg-background-secondary">
+          <NavLink href="/">Dashboard</NavLink>
+          <NavLink href="/calculator">Calculator</NavLink>
+          <NavLink href="/admin">Admin</NavLink>
+        </nav>
+      )}
     </header>
   );
 }
@@ -91,7 +113,7 @@ function Landing() {
         </Link>
       </div>
 
-      <div className="grid grid-cols-3 gap-8 mt-20 text-left">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8 mt-16 sm:mt-20 text-left">
         <div>
           <h3 className="text-h4 font-serif mb-2">Oracle-Powered</h3>
           <p className="text-foreground-secondary text-sm">
