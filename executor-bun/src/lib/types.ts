@@ -43,6 +43,7 @@ export interface ExecutionResult {
   digest?: string;
   error?: string;
   reward?: bigint;
+  gasCost?: bigint;
   inputAmount?: bigint;
   outputAmount?: bigint;
   provider?: string;

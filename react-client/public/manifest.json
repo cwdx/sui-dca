@@ -1,0 +1,17 @@
+{
+  "name": "Sui DCA",
+  "short_name": "Sui DCA",
+  "description": "Automate your crypto investments with dollar cost averaging on Sui blockchain",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#0a0a0a",
+  "theme_color": "#4da2ff",
+  "icons": [
+    {
+      "src": "sui.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

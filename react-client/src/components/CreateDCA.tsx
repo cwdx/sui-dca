@@ -260,7 +260,8 @@ export function CreateDCA() {
     if (timeScale !== "day") params.set("interval", timeScale);
 
     const search = params.toString();
-    const newUrl = search ? `/?${search}` : "/";
+    const basePath = import.meta.env.BASE_URL || "/";
+    const newUrl = search ? `${basePath}?${search}` : basePath;
     // Only update if different to avoid infinite loops
     const currentSearch = window.location.search;
     if (`?${search}` !== currentSearch && (search || currentSearch)) {

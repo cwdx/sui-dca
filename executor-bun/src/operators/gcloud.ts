@@ -1,29 +1,27 @@
-/**
- * Google Cloud Run Operator
- *
- * Container-based serverless handler for Cloud Run.
- * Can be triggered via HTTP, Cloud Scheduler, or Pub/Sub.
- *
- * Usage:
- *   # Build container
- *   docker build -t dca-executor .
- *
- *   # Deploy to Cloud Run
- *   gcloud run deploy dca-executor \
- *     --image gcr.io/PROJECT/dca-executor \
- *     --platform managed \
- *     --allow-unauthenticated
- *
- *   # Set up Cloud Scheduler
- *   gcloud scheduler jobs create http dca-executor-job \
- *     --schedule "*/5 * * * *" \
- *     --uri "https://dca-executor-xxx.run.app/execute" \
- *     --http-method POST
- */
+// Google Cloud Run Operator
+//
+// Container-based serverless handler for Cloud Run.
+// Can be triggered via HTTP, Cloud Scheduler, or Pub/Sub.
+//
+// Usage:
+//   # Build container
+//   docker build -t dca-executor .
+//
+//   # Deploy to Cloud Run
+//   gcloud run deploy dca-executor \
+//     --image gcr.io/PROJECT/dca-executor \
+//     --platform managed \
+//     --allow-unauthenticated
+//
+//   # Set up Cloud Scheduler
+//   gcloud scheduler jobs create http dca-executor-job \
+//     --schedule "*/5 * * * *" \
+//     --uri "https://dca-executor-xxx.run.app/execute" \
+//     --http-method POST
 
 import { Hono } from "hono";
 import { cors } from "hono/cors";
-import { discover, executeBatchForCloud, calculateSafeBatchSize, getConfig } from "../index.js";
+import { discover, executeBatchForCloud, calculateSafeBatchSize, getConfig, getExecutorAddress, getExecutorBalance, logStartupInfo } from "../index.js";
 import type { BatchExecutionResult } from "../lib/types.js";
 
 // Cloud Run timeout limits (ms)
@@ -57,13 +55,20 @@ app.get("/", (c) => {
   });
 });
 
-app.get("/health", (c) => {
+app.get("/health", async (c) => {
   const config = getConfig();
+  const address = getExecutorAddress();
+  const balance = await getExecutorBalance();
+
   return c.json({
     status: "ok",
     runtime: "cloud-run",
     network: config.network,
     dryRun: config.dryRun,
+    executor: {
+      address,
+      balance: `${balance.toFixed(4)} SUI`,
+    },
     timestamp: new Date().toISOString(),
   });
 });
@@ -101,8 +106,24 @@ app.get("/discover", async (c) => {
   }
 });
 
-// Execute DCAs
+// Execute DCAs (restricted to Cloud Scheduler or internal calls)
 app.post("/execute", async (c) => {
+  // Check if request is from Cloud Scheduler or has API key
+  const userAgent = c.req.header("User-Agent") || "";
+  const apiKey = c.req.header("X-API-Key") || c.req.query("api_key");
+  const expectedApiKey = process.env.EXECUTOR_API_KEY;
+
+  const isScheduler = userAgent.includes("Google-Cloud-Scheduler");
+  const isAuthorized = expectedApiKey && apiKey === expectedApiKey;
+
+  if (!isScheduler && !isAuthorized) {
+    console.log(`[execute] Blocked unauthorized request from: ${userAgent.slice(0, 50)}`);
+    return c.json({
+      success: false,
+      error: "Unauthorized. Execute endpoint is restricted to Cloud Scheduler.",
+    }, 403);
+  }
+
   try {
     const body = await c.req.json().catch(() => ({}));
     const requestedLimit = body.limit || parseInt(c.req.query("limit") || "10");
@@ -160,6 +181,12 @@ app.post("/execute", async (c) => {
 
 // Pub/Sub push endpoint (for Cloud Scheduler via Pub/Sub)
 app.post("/pubsub", async (c) => {
+  // Check if request is from Google (Pub/Sub)
+  const userAgent = c.req.header("User-Agent") || "";
+  if (!userAgent.includes("Google") && !userAgent.includes("CloudPubSub")) {
+    return c.json({ success: false, error: "Unauthorized" }, 403);
+  }
+
   try {
     const body = await c.req.json();
 
@@ -216,9 +243,11 @@ export default {
 
 // For direct execution
 if (import.meta.main) {
-  const config = getConfig();
-  console.log("=== DCA Executor - Cloud Run ===");
-  console.log(`Network: ${config.network}`);
-  console.log(`Dry Run: ${config.dryRun}`);
-  console.log(`Listening on port ${port}`);
+  // Log startup info (address, balance, etc.)
+  logStartupInfo().then(() => {
+    console.log(`Listening on port ${port}`);
+  }).catch((err) => {
+    console.warn(`Failed to log startup info: ${err.message}`);
+    console.log(`Listening on port ${port}`);
+  });
 }

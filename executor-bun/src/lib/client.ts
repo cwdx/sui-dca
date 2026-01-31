@@ -78,6 +78,16 @@ export function getExecutorAddress(): string {
   return getKeypair().toSuiAddress();
 }
 
+/**
+ * Get executor's SUI balance in SUI (not MIST)
+ */
+export async function getExecutorBalance(): Promise<number> {
+  const client = getSuiClient();
+  const address = getExecutorAddress();
+  const balance = await client.getBalance({ owner: address, coinType: "0x2::sui::SUI" });
+  return Number(balance.totalBalance) / 1e9;
+}
+
 // ============ Helpers ============
 
 /**

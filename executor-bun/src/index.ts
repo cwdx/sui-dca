@@ -46,7 +46,7 @@ export type {
 } from "./lib/types.js";
 
 // ============ Configuration ============
-export { loadConfig, validateConfig, getConfig, resetConfig } from "./lib/config.js";
+export { loadConfig, validateConfig, getConfig, resetConfig, logStartupInfo } from "./lib/config.js";
 
 // ============ Clients ============
 export {
@@ -55,6 +55,7 @@ export {
   createMetaAg,
   getKeypair,
   getExecutorAddress,
+  getExecutorBalance,
   timeScaleToMs,
   getEffectiveSlippage,
   resetClients,

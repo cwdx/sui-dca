@@ -79,6 +79,7 @@ export function validateConfig(config: ExecutorConfig): void {
 
 // Singleton config instance
 let configInstance: ExecutorConfig | null = null;
+let startupLogged = false;
 
 export function getConfig(): ExecutorConfig {
   if (!configInstance) {
@@ -90,4 +91,28 @@ export function getConfig(): ExecutorConfig {
 
 export function resetConfig(): void {
   configInstance = null;
+  startupLogged = false;
+}
+
+/**
+ * Log executor startup info (called once)
+ * Should be called after config is loaded and client is available
+ */
+export async function logStartupInfo(): Promise<void> {
+  if (startupLogged) return;
+  startupLogged = true;
+
+  // Import dynamically to avoid circular dependency
+  const { getExecutorAddress, getExecutorBalance } = await import("./client.js");
+  const config = getConfig();
+
+  const address = getExecutorAddress();
+  const balance = await getExecutorBalance();
+
+  console.log("=== DCA Executor ===");
+  console.log(`Network:  ${config.network}`);
+  console.log(`Executor: ${address}`);
+  console.log(`Balance:  ${balance.toFixed(4)} SUI`);
+  console.log(`Dry Run:  ${config.dryRun}`);
+  console.log("====================");
 }

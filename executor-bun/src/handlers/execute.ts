@@ -24,12 +24,18 @@
  */
 
 import { Transaction } from "@mysten/sui/transactions";
-import { getSuiClient, getMetaAg, getKeypair, getExecutorAddress, getEffectiveSlippage, timeScaleToMs } from "../lib/client.js";
+import { getSuiClient, getMetaAg, getKeypair, getExecutorAddress, getExecutorBalance, getEffectiveSlippage, timeScaleToMs } from "../lib/client.js";
 import { getConfig } from "../lib/config.js";
 import { getTokenByType } from "../lib/token-registry.js";
 import { getPriceInfoObjectIds } from "../lib/pyth.js";
 import { initTrade, resolveTrade } from "../_generated/dca/dca/functions.js";
 import type { EligibleDca, QuotedDca, ExecutionResult } from "../lib/types.js";
+
+// Format SUI amount for logging
+function formatSui(amount: number | bigint): string {
+  const num = typeof amount === "bigint" ? Number(amount) / 1e9 : amount;
+  return `${num.toFixed(4)} SUI`;
+}
 
 // Known error patterns for race conditions
 const ALREADY_EXECUTED_ERRORS = [
@@ -147,10 +153,15 @@ export async function execute(quotedDca: QuotedDca, skipVerification = false): P
   const keypair = getKeypair();
   const executorAddress = getExecutorAddress();
 
+  // Get balance before execution
+  const balanceBefore = await getExecutorBalance();
+  console.log(`[execute] DCA ${quotedDca.id.slice(0, 10)}... | Executor: ${executorAddress.slice(0, 10)}... | Balance: ${formatSui(balanceBefore)}`);
+
   // Fresh eligibility check to prevent race conditions
   if (!skipVerification) {
     const { eligible, reason } = await verifyStillEligible(quotedDca.id);
     if (!eligible) {
+      console.log(`[execute] Skipped - ${reason}`);
       return {
         dcaId: quotedDca.id,
         success: false,
@@ -279,24 +290,43 @@ export async function execute(quotedDca: QuotedDca, skipVerification = false): P
     if (result.effects?.status.error) {
       const error = result.effects.status.error;
 
+      // Extract gas cost even on failure
+      const gasUsed = result.effects?.gasUsed;
+      const gasCost = gasUsed
+        ? BigInt(gasUsed.computationCost) + BigInt(gasUsed.storageCost) - BigInt(gasUsed.storageRebate)
+        : 0n;
+
       // Check if another executor already executed this DCA
       // This is expected in multi-executor environments - treat as success
       if (isAlreadyExecutedError(error)) {
+        console.log(`[execute] ✓ Already executed by another executor | Gas: ${formatSui(gasCost)}`);
         return {
           dcaId: quotedDca.id,
           success: true, // Idempotent: already done = success
           digest: result.digest,
+          gasCost,
           error: `Already executed by another executor: ${error}`,
         };
       }
+
+      const balanceAfter = await getExecutorBalance();
+      console.log(`[execute] ✗ Tx failed: ${error.slice(0, 100)}`);
+      console.log(`[execute]   Gas: ${formatSui(gasCost)} | Balance after: ${formatSui(balanceAfter)}`);
 
       return {
         dcaId: quotedDca.id,
         success: false,
         digest: result.digest,
+        gasCost,
         error,
       };
     }
+
+    // Extract gas cost from effects
+    const gasUsed = result.effects?.gasUsed;
+    const gasCost = gasUsed
+      ? BigInt(gasUsed.computationCost) + BigInt(gasUsed.storageCost) - BigInt(gasUsed.storageRebate)
+      : 0n;
 
     // Extract reward from events
     let reward: bigint | undefined;
@@ -309,11 +339,20 @@ export async function execute(quotedDca: QuotedDca, skipVerification = false): P
       outputAmountActual = parsed.amount_out ? BigInt(parsed.amount_out) : undefined;
     }
 
+    // Get balance after execution
+    const balanceAfter = await getExecutorBalance();
+    const netChange = balanceAfter - balanceBefore;
+
+    console.log(`[execute] ✓ Success | Digest: ${result.digest.slice(0, 16)}...`);
+    console.log(`[execute]   Gas: ${formatSui(gasCost)} | Reward: ${reward ? formatSui(reward) : "N/A"} | Net: ${netChange >= 0 ? "+" : ""}${formatSui(netChange)}`);
+    console.log(`[execute]   Balance after: ${formatSui(balanceAfter)}`);
+
     return {
       dcaId: quotedDca.id,
       success: true,
       digest: result.digest,
       reward,
+      gasCost,
       inputAmount: quotedDca.netInputAmount,
       outputAmount: outputAmountActual ?? BigInt(quotedDca.quote.amountOut),
       provider: quotedDca.quote.provider,
@@ -323,12 +362,18 @@ export async function execute(quotedDca: QuotedDca, skipVerification = false): P
 
     // Check if race condition error (another executor won)
     if (isAlreadyExecutedError(errorMsg)) {
+      console.log(`[execute] ✓ Already executed by another executor`);
       return {
         dcaId: quotedDca.id,
         success: true, // Idempotent: already done = success
         error: `Already executed by another executor: ${errorMsg}`,
       };
     }
+
+    // Log balance after failed execution
+    const balanceAfter = await getExecutorBalance().catch(() => balanceBefore);
+    console.log(`[execute] ✗ Failed: ${errorMsg.slice(0, 100)}`);
+    console.log(`[execute]   Balance after: ${formatSui(balanceAfter)}`);
 
     return {
       dcaId: quotedDca.id,
