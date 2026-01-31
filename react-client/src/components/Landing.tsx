@@ -90,7 +90,7 @@ function StatCard({ label, value, subtext, period, trend, chartData, token, tota
                 )}
               </div>
               {chartData && chartData.length > 0 && (
-                <div className="w-16 h-10 flex-shrink-0">
+                <div className="w-16 h-10 flex-shrink-0 pointer-events-none">
                   <ResponsiveContainer width="100%" height="100%">
                     <AreaChart data={chartData}>
                       <Area
@@ -100,6 +100,7 @@ function StatCard({ label, value, subtext, period, trend, chartData, token, tota
                         fill={trendColor}
                         fillOpacity={0.1}
                         strokeWidth={1.5}
+                        isAnimationActive={false}
                       />
                     </AreaChart>
                   </ResponsiveContainer>
@@ -124,11 +125,11 @@ function StatCard({ label, value, subtext, period, trend, chartData, token, tota
 
 // Historical performance calculator
 function HistoricalStats() {
-  // Calculate 3Y performance for DCA (or max available from Pyth)
+  // Calculate 1Y performance for DCA (Pyth Benchmarks API limit)
   const endDate = useMemo(() => new Date(), []);
   const startDate = useMemo(() => {
     const d = new Date();
-    d.setFullYear(d.getFullYear() - 3);
+    d.setFullYear(d.getFullYear() - 1);
     return d;
   }, []);
 
