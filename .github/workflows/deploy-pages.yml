@@ -40,8 +40,8 @@ jobs:
       - name: Build
         working-directory: react-client
         env:
-          # GitHub Pages base path
-          VITE_BASE_PATH: /sui-dca/
+          # Custom domain uses root path
+          VITE_BASE_PATH: /
         run: npm run build
 
       - name: Setup Pages
