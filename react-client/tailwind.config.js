@@ -54,9 +54,9 @@ export default {
         },
       },
       fontFamily: {
-        serif: ["Cormorant Garamond", "Georgia", "Times New Roman", "serif"],
+        serif: ["DM Serif Display", "Georgia", "Times New Roman", "serif"],
         sans: [
-          "Inter",
+          "DM Sans",
           "-apple-system",
           "BlinkMacSystemFont",
           "Segoe UI",

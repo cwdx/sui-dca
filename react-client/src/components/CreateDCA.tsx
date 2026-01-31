@@ -208,16 +208,18 @@ export function CreateDCA() {
 
   // Start time
   const [startOption, setStartOption] = useState<StartOption>("now");
-  const [startDate, setStartDate] = useState(() =>
-    dayjs().format("YYYY-MM-DD"),
-  );
-  const [startTime, setStartTime] = useState(() => {
-    const now = dayjs();
-    return `${now.hour().toString().padStart(2, "0")}:${(Math.ceil(now.minute() / 15) * 15) % 60}`.padEnd(
-      5,
-      "0",
-    );
-  });
+
+  // Initialize to next hour
+  const getNextHour = () => {
+    const next = dayjs().add(1, "hour").startOf("hour");
+    return {
+      date: next.format("YYYY-MM-DD"),
+      time: next.format("HH:mm"),
+    };
+  };
+
+  const [startDate, setStartDate] = useState(() => getNextHour().date);
+  const [startTime, setStartTime] = useState(() => getNextHour().time);
 
   const [error, setError] = useState<string | null>(null);
   const [termsAccepted, setTermsAccepted] = useState(false);
@@ -806,13 +808,12 @@ export function CreateDCA() {
             {/* Start Time */}
             <div className="space-y-3">
               <Label>Start</Label>
-              <div className="flex gap-2">
+              <div className="grid grid-cols-2 gap-2">
                 <Button
                   type="button"
                   variant={startOption === "now" ? "default" : "secondary"}
                   size="sm"
                   onClick={() => setStartOption("now")}
-                  className="flex-1"
                 >
                   Now
                 </Button>
@@ -822,27 +823,69 @@ export function CreateDCA() {
                     startOption === "scheduled" ? "default" : "secondary"
                   }
                   size="sm"
-                  onClick={() => setStartOption("scheduled")}
-                  className="flex-1"
+                  onClick={() => {
+                    setStartOption("scheduled");
+                    // Reset to next hour when switching to scheduled
+                    const next = getNextHour();
+                    setStartDate(next.date);
+                    setStartTime(next.time);
+                  }}
                 >
                   Schedule
                 </Button>
               </div>
               {startOption === "scheduled" && (
-                <div className="grid grid-cols-2 gap-3">
-                  <Input
-                    type="date"
-                    value={startDate}
-                    onChange={(e) => setStartDate(e.target.value)}
-                    min={dayjs().format("YYYY-MM-DD")}
-                    className="font-mono"
-                  />
-                  <Input
-                    type="time"
-                    value={startTime}
-                    onChange={(e) => setStartTime(e.target.value)}
-                    className="font-mono"
-                  />
+                <div className="space-y-3">
+                  {/* Quick time presets */}
+                  <div className="grid grid-cols-4 gap-2">
+                    {[
+                      { label: "+1h", hours: 1 },
+                      { label: "+6h", hours: 6 },
+                      { label: "+12h", hours: 12 },
+                      { label: "+24h", hours: 24 },
+                    ].map((preset) => {
+                      const target = dayjs().add(preset.hours, "hour").startOf("hour");
+                      const isSelected =
+                        startDate === target.format("YYYY-MM-DD") &&
+                        startTime === target.format("HH:mm");
+                      return (
+                        <Button
+                          key={preset.label}
+                          type="button"
+                          variant={isSelected ? "default" : "secondary"}
+                          size="sm"
+                          onClick={() => {
+                            setStartDate(target.format("YYYY-MM-DD"));
+                            setStartTime(target.format("HH:mm"));
+                          }}
+                        >
+                          {preset.label}
+                        </Button>
+                      );
+                    })}
+                  </div>
+                  {/* Custom date/time */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <span className="text-xs text-foreground-muted">Date</span>
+                      <Input
+                        type="date"
+                        value={startDate}
+                        onChange={(e) => setStartDate(e.target.value)}
+                        min={dayjs().format("YYYY-MM-DD")}
+                        className="font-mono"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <span className="text-xs text-foreground-muted">Time</span>
+                      <Input
+                        type="time"
+                        value={startTime}
+                        onChange={(e) => setStartTime(e.target.value)}
+                        className="font-mono"
+                      />
+                    </div>
+                  </div>
                 </div>
               )}
             </div>

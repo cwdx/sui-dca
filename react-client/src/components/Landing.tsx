@@ -45,6 +45,7 @@ interface StatCardProps {
   label: string;
   value: string;
   subtext?: string;
+  period?: string;
   trend?: "up" | "down" | "neutral";
   chartData?: { value: number }[];
   token?: TokenInfo;
@@ -52,7 +53,7 @@ interface StatCardProps {
   currentValue?: number;
 }
 
-function StatCard({ label, value, subtext, trend, chartData, token, totalInvested, currentValue }: StatCardProps) {
+function StatCard({ label, value, subtext, period, trend, chartData, token, totalInvested, currentValue }: StatCardProps) {
   const trendColor = trend === "up" ? "#166534" : trend === "down" ? "#991B1B" : "#737373";
 
   return (
@@ -82,6 +83,11 @@ function StatCard({ label, value, subtext, trend, chartData, token, totalInveste
                 >
                   {value}
                 </p>
+                {period && (
+                  <p className="text-xs text-foreground-tertiary mt-0.5">
+                    {period}
+                  </p>
+                )}
               </div>
               {chartData && chartData.length > 0 && (
                 <div className="w-16 h-10 flex-shrink-0">
@@ -118,11 +124,11 @@ function StatCard({ label, value, subtext, trend, chartData, token, totalInveste
 
 // Historical performance calculator
 function HistoricalStats() {
-  // Calculate 1Y performance for SUI/USDC DCA
+  // Calculate 3Y performance for DCA (or max available from Pyth)
   const endDate = useMemo(() => new Date(), []);
   const startDate = useMemo(() => {
     const d = new Date();
-    d.setFullYear(d.getFullYear() - 1);
+    d.setFullYear(d.getFullYear() - 3);
     return d;
   }, []);
 
@@ -186,6 +192,21 @@ function HistoricalStats() {
     return backtest.trades.map((t) => ({ value: t.dcaValue }));
   };
 
+  // Calculate period string from backtest data (e.g., "2Y 3M" or "8M")
+  const getPeriod = (backtest: BacktestSummary | null): string => {
+    if (!backtest || backtest.trades.length < 2) return "";
+    const firstTrade = backtest.trades[0];
+    const lastTrade = backtest.trades[backtest.trades.length - 1];
+    const diffMs = lastTrade.timestamp - firstTrade.timestamp;
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    const years = Math.floor(diffDays / 365);
+    const months = Math.floor((diffDays % 365) / 30);
+    if (years > 0 && months > 0) return `${years}Y ${months}M`;
+    if (years > 0) return `${years}Y`;
+    if (months > 0) return `${months}M`;
+    return `${diffDays}D`;
+  };
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
       {suiBacktest && (
@@ -194,6 +215,7 @@ function HistoricalStats() {
             label="SUI Weekly DCA"
             value={`${suiBacktest.dcaReturn >= 0 ? "+" : ""}${suiBacktest.dcaReturn.toFixed(1)}%`}
             subtext={`${suiBacktest.dcaTokensAcquired.toFixed(2)} SUI acquired`}
+            period={getPeriod(suiBacktest)}
             trend={suiBacktest.dcaReturn >= 0 ? "up" : "down"}
             chartData={getChartData(suiBacktest)}
             token={TOKENS.SUI}
@@ -208,6 +230,7 @@ function HistoricalStats() {
             label="ETH Weekly DCA"
             value={`${ethBacktest.dcaReturn >= 0 ? "+" : ""}${ethBacktest.dcaReturn.toFixed(1)}%`}
             subtext={`${ethBacktest.dcaTokensAcquired.toFixed(4)} ETH acquired`}
+            period={getPeriod(ethBacktest)}
             trend={ethBacktest.dcaReturn >= 0 ? "up" : "down"}
             chartData={getChartData(ethBacktest)}
             token={TOKENS.WETH}
@@ -222,6 +245,7 @@ function HistoricalStats() {
             label="BTC Weekly DCA"
             value={`${btcBacktest.dcaReturn >= 0 ? "+" : ""}${btcBacktest.dcaReturn.toFixed(1)}%`}
             subtext={`${btcBacktest.dcaTokensAcquired.toFixed(6)} BTC acquired`}
+            period={getPeriod(btcBacktest)}
             trend={btcBacktest.dcaReturn >= 0 ? "up" : "down"}
             chartData={getChartData(btcBacktest)}
             token={TOKENS.WBTC}
@@ -286,7 +310,7 @@ export function Landing() {
               See How DCA Performs
             </h2>
             <p className="text-foreground-secondary mt-2 max-w-lg mx-auto">
-              Real returns from $100/week DCA strategies over the past year
+              Real returns from $100/week DCA strategies using Pyth historical data
             </p>
           </div>
           <HistoricalStats />
