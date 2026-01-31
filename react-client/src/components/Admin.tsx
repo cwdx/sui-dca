@@ -5,10 +5,11 @@ import {
 } from "@mysten/dapp-kit";
 import { Transaction } from "@mysten/sui/transactions";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { AlertTriangle, ExternalLink, Shield, Activity, Wallet, Copy, Check } from "lucide-react";
+import { AlertTriangle, ExternalLink, Shield, Activity, Wallet, Copy, Check, QrCode } from "lucide-react";
 import { useExecutorHealth, getExecutorApiUrl } from "@/hooks/useExecutorHealth";
 import { useState } from "react";
 import { ConnectButton } from "@mysten/dapp-kit";
+import { QRCodeSVG } from "qrcode.react";
 import {
   Badge,
   Button,
@@ -17,6 +18,12 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  Dialog,
+  DialogBody,
+  DialogClose,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
   Input,
   Label,
 } from "@/components/ui";
@@ -34,8 +41,10 @@ function blobIdToString(blobId: number[]): string {
 
 // Executor Status Component
 function ExecutorStatus() {
+  const account = useCurrentAccount();
   const { data: health, isLoading, isError } = useExecutorHealth();
   const [copied, setCopied] = useState(false);
+  const [showQRDialog, setShowQRDialog] = useState(false);
   const apiUrl = getExecutorApiUrl();
 
   const copyAddress = async (address: string) => {
@@ -45,99 +54,154 @@ function ExecutorStatus() {
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Activity className="w-5 h-5" />
-          Executor Status
-        </CardTitle>
-        <CardDescription>
-          Automated trade executor service
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        {isLoading ? (
-          <p className="text-foreground-muted">Checking executor status...</p>
-        ) : isError || !health ? (
-          <div className="space-y-4">
-            <div className="flex items-center gap-2 text-status-error">
-              <span className="w-2 h-2 rounded-full bg-status-error" />
-              <span className="font-medium">Offline</span>
-            </div>
-            {apiUrl && (
-              <div>
-                <p className="text-xs text-foreground-tertiary mb-1">API Endpoint</p>
-                <p className="font-mono text-xs text-foreground-muted break-all">{apiUrl}</p>
+    <>
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Activity className="w-5 h-5" />
+            Executor Status
+          </CardTitle>
+          <CardDescription>
+            Automated trade executor service
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {isLoading ? (
+            <p className="text-foreground-muted">Checking executor status...</p>
+          ) : isError || !health ? (
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 text-status-error">
+                <span className="w-2 h-2 rounded-full bg-status-error" />
+                <span className="font-medium">Offline</span>
               </div>
-            )}
-          </div>
-        ) : (
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-              <div>
-                <p className="text-foreground-tertiary mb-1">Status</p>
-                <div className="flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-status-success" />
-                  <Badge variant="success">Online</Badge>
+              {apiUrl && (
+                <div>
+                  <p className="text-xs text-foreground-tertiary mb-1">API Endpoint</p>
+                  <p className="font-mono text-xs text-foreground-muted break-all">{apiUrl}</p>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                <div>
+                  <p className="text-foreground-tertiary mb-1">Status</p>
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-status-success" />
+                    <Badge variant="success">Online</Badge>
+                  </div>
+                </div>
+                <div>
+                  <p className="text-foreground-tertiary mb-1">Network</p>
+                  <p className="font-mono">{health.network}</p>
+                </div>
+                <div>
+                  <p className="text-foreground-tertiary mb-1">Runtime</p>
+                  <p className="font-mono">{health.runtime}</p>
+                </div>
+                <div>
+                  <p className="text-foreground-tertiary mb-1">Dry Run</p>
+                  <Badge variant={health.dryRun ? "warning" : "secondary"}>
+                    {health.dryRun ? "Yes" : "No"}
+                  </Badge>
                 </div>
               </div>
-              <div>
-                <p className="text-foreground-tertiary mb-1">Network</p>
-                <p className="font-mono">{health.network}</p>
-              </div>
-              <div>
-                <p className="text-foreground-tertiary mb-1">Runtime</p>
-                <p className="font-mono">{health.runtime}</p>
-              </div>
-              <div>
-                <p className="text-foreground-tertiary mb-1">Dry Run</p>
-                <Badge variant={health.dryRun ? "warning" : "secondary"}>
-                  {health.dryRun ? "Yes" : "No"}
-                </Badge>
-              </div>
-            </div>
 
-            <div className="pt-4 border-t border-border">
-              <p className="text-xs text-foreground-tertiary mb-2">Executor Wallet</p>
-              <div className="flex items-center gap-3">
-                <Wallet className="w-4 h-4 text-foreground-muted" />
-                <code className="font-mono text-xs text-foreground-secondary break-all flex-1">
-                  {health.executor.address}
-                </code>
+              <div className="pt-4 border-t border-border">
+                <p className="text-xs text-foreground-tertiary mb-2">Executor Wallet</p>
+                <div className="flex items-center gap-3">
+                  <Wallet className="w-4 h-4 text-foreground-muted" />
+                  <code className="font-mono text-xs text-foreground-secondary break-all flex-1">
+                    {health.executor.address}
+                  </code>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => copyAddress(health.executor.address)}
+                    className="shrink-0"
+                  >
+                    {copied ? (
+                      <Check className="w-4 h-4 text-status-success" />
+                    ) : (
+                      <Copy className="w-4 h-4" />
+                    )}
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowQRDialog(true)}
+                    className="shrink-0"
+                    disabled={!account}
+                    title={account ? "Show QR Code" : "Connect wallet to fund executor"}
+                  >
+                    <QrCode className="w-4 h-4" />
+                  </Button>
+                </div>
+                <div className="flex items-center justify-between mt-3 p-3 rounded-lg bg-background-secondary">
+                  <span className="text-sm text-foreground-secondary">Balance</span>
+                  <span className="font-mono font-medium text-foreground-primary">
+                    {health.executor.balance}
+                  </span>
+                </div>
+                <p className="text-xs text-foreground-muted mt-2">
+                  Fund this address to ensure the executor can pay gas fees for trade execution.
+                </p>
+              </div>
+
+              {apiUrl && (
+                <div className="pt-4 border-t border-border">
+                  <p className="text-xs text-foreground-tertiary mb-1">API Endpoint</p>
+                  <p className="font-mono text-xs text-foreground-muted break-all">{apiUrl}</p>
+                </div>
+              )}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* QR Code Dialog */}
+      {health && (
+        <Dialog open={showQRDialog} onOpenChange={setShowQRDialog}>
+          <DialogContent className="max-w-sm">
+            <DialogHeader>
+              <DialogTitle>Fund Executor</DialogTitle>
+              <DialogClose />
+            </DialogHeader>
+            <DialogBody className="flex flex-col items-center text-center">
+              <div className="bg-white p-4 rounded-xl mb-4">
+                <QRCodeSVG
+                  value={health.executor.address}
+                  size={200}
+                  level="H"
+                  includeMargin={false}
+                />
+              </div>
+              <p className="text-sm text-foreground-secondary mb-2">
+                Scan to send SUI to the executor wallet
+              </p>
+              <code className="font-mono text-xs text-foreground-muted break-all px-4">
+                {health.executor.address}
+              </code>
+              <div className="flex items-center gap-2 mt-4">
                 <Button
-                  variant="ghost"
+                  variant="secondary"
                   size="sm"
                   onClick={() => copyAddress(health.executor.address)}
-                  className="shrink-0"
+                  className="gap-2"
                 >
                   {copied ? (
                     <Check className="w-4 h-4 text-status-success" />
                   ) : (
                     <Copy className="w-4 h-4" />
                   )}
+                  Copy Address
                 </Button>
               </div>
-              <div className="flex items-center justify-between mt-3 p-3 rounded-lg bg-background-secondary">
-                <span className="text-sm text-foreground-secondary">Balance</span>
-                <span className="font-mono font-medium text-foreground-primary">
-                  {health.executor.balance}
-                </span>
-              </div>
-              <p className="text-xs text-foreground-muted mt-2">
-                Fund this address to ensure the executor can pay gas fees for trade execution.
-              </p>
-            </div>
-
-            {apiUrl && (
-              <div className="pt-4 border-t border-border">
-                <p className="text-xs text-foreground-tertiary mb-1">API Endpoint</p>
-                <p className="font-mono text-xs text-foreground-muted break-all">{apiUrl}</p>
-              </div>
-            )}
-          </div>
-        )}
-      </CardContent>
-    </Card>
+            </DialogBody>
+          </DialogContent>
+        </Dialog>
+      )}
+    </>
   );
 }
 

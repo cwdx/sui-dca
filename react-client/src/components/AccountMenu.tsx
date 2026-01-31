@@ -13,9 +13,20 @@ import {
   Copy,
   ExternalLink,
   LogOut,
+  QrCode,
   User,
 } from "lucide-react";
 import { useState } from "react";
+import { QRCodeSVG } from "qrcode.react";
+import {
+  Button,
+  Dialog,
+  DialogBody,
+  DialogClose,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui";
 import { useNetwork } from "@/contexts/NetworkContext";
 import { useSuiNSName } from "@/hooks/useSuiNS";
 import { cn } from "@/lib/utils";
@@ -28,6 +39,7 @@ export function AccountMenu() {
   const client = useSuiClient();
   const { explorerAddressUrl } = useNetwork();
   const [copied, setCopied] = useState(false);
+  const [showQRDialog, setShowQRDialog] = useState(false);
 
   // Fetch SuiNS name
   const { data: suinsName } = useSuiNSName(account?.address);
@@ -168,6 +180,14 @@ export function AccountMenu() {
             View on Explorer
           </DropdownMenu.Item>
 
+          <DropdownMenu.Item
+            className="flex items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none cursor-pointer hover:bg-background-tertiary"
+            onClick={() => setShowQRDialog(true)}
+          >
+            <QrCode className="w-4 h-4" />
+            Show QR Code
+          </DropdownMenu.Item>
+
           <DropdownMenu.Separator className="my-1 h-px bg-border" />
 
           <DropdownMenu.Item
@@ -179,6 +199,49 @@ export function AccountMenu() {
           </DropdownMenu.Item>
         </DropdownMenu.Content>
       </DropdownMenu.Portal>
+
+      {/* QR Code Dialog */}
+      <Dialog open={showQRDialog} onOpenChange={setShowQRDialog}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Your Wallet</DialogTitle>
+            <DialogClose />
+          </DialogHeader>
+          <DialogBody className="flex flex-col items-center text-center">
+            <div className="bg-white p-4 rounded-xl mb-4">
+              <QRCodeSVG
+                value={account.address}
+                size={200}
+                level="H"
+                includeMargin={false}
+              />
+            </div>
+            {suinsName && (
+              <p className="text-sm font-medium text-foreground-primary mb-1">
+                {suinsName}
+              </p>
+            )}
+            <code className="font-mono text-xs text-foreground-muted break-all px-4">
+              {account.address}
+            </code>
+            <div className="flex items-center gap-2 mt-4">
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={copyAddress}
+                className="gap-2"
+              >
+                {copied ? (
+                  <Check className="w-4 h-4 text-status-success" />
+                ) : (
+                  <Copy className="w-4 h-4" />
+                )}
+                Copy Address
+              </Button>
+            </div>
+          </DialogBody>
+        </DialogContent>
+      </Dialog>
     </DropdownMenu.Root>
   );
 }
