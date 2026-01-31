@@ -696,7 +696,7 @@ export function CreateDCA() {
                   </span>
                 )}
               </div>
-              <div className="flex gap-2">
+              <div className="grid grid-cols-5 gap-2">
                 {["0.1", "10", "25", "100"].map((amount) => (
                   <Button
                     key={amount}
@@ -705,24 +705,20 @@ export function CreateDCA() {
                     }
                     size="sm"
                     onClick={() => handleInputChange(setAmountPerOrder)(amount)}
-                    className="flex-1"
                   >
                     {amount}
                   </Button>
                 ))}
-                <div className="relative w-28 shrink-0">
+                <div className="relative">
                   <Input
                     type="number"
                     value={amountPerOrder}
                     onChange={(e) =>
                       handleInputChange(setAmountPerOrder)(e.target.value)
                     }
-                    placeholder="Custom"
-                    className="pr-10 font-mono text-right"
+                    placeholder="$"
+                    className="font-mono text-center px-2"
                   />
-                  <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-foreground-muted pointer-events-none">
-                    {inputToken.symbol}
-                  </span>
                 </div>
               </div>
               <div className="flex items-center justify-between text-xs">
@@ -754,13 +750,13 @@ export function CreateDCA() {
             {/* Frequency */}
             <div className="space-y-2">
               <Label>Frequency</Label>
-              <div className="flex gap-2">
+              <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
                 {[
-                  { label: "Minute", scale: "minute" as TimeScale },
-                  { label: "Hourly", scale: "hour" as TimeScale },
-                  { label: "Daily", scale: "day" as TimeScale },
-                  { label: "Weekly", scale: "week" as TimeScale },
-                  { label: "Monthly", scale: "month" as TimeScale },
+                  { label: "Min", scale: "minute" as TimeScale },
+                  { label: "Hour", scale: "hour" as TimeScale },
+                  { label: "Day", scale: "day" as TimeScale },
+                  { label: "Week", scale: "week" as TimeScale },
+                  { label: "Month", scale: "month" as TimeScale },
                 ].map((preset) => (
                   <Button
                     key={preset.label}
@@ -772,7 +768,6 @@ export function CreateDCA() {
                       setTimeScale(preset.scale);
                       setSelectedPreset(null);
                     }}
-                    className="flex-1"
                   >
                     {preset.label}
                   </Button>
@@ -783,14 +778,13 @@ export function CreateDCA() {
             {/* Number of Trades */}
             <div className="space-y-2">
               <Label>Number of Trades</Label>
-              <div className="flex gap-2">
+              <div className="grid grid-cols-5 gap-2">
                 {["7", "14", "30", "52"].map((count) => (
                   <Button
                     key={count}
                     variant={numOrders === count ? "default" : "secondary"}
                     size="sm"
                     onClick={() => handleInputChange(setNumOrders)(count)}
-                    className="flex-1"
                   >
                     {count}
                   </Button>
@@ -804,7 +798,7 @@ export function CreateDCA() {
                   min="1"
                   max="1000"
                   placeholder="#"
-                  className="font-mono w-16 shrink-0 text-center"
+                  className="font-mono text-center"
                 />
               </div>
             </div>
