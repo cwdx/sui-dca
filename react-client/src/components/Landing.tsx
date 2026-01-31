@@ -266,7 +266,7 @@ export function Landing() {
       <section
         className="-mx-4 sm:-mx-6 lg:-mx-8 bg-cover bg-center bg-no-repeat"
         style={{
-          backgroundImage: `linear-gradient(to bottom, rgba(10,10,10,0.7), rgba(10,10,10,0.8)), url('https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=1920&q=80')`
+          backgroundImage: `linear-gradient(to bottom, rgba(10,10,10,0.75), rgba(10,10,10,0.85)), url('https://images.unsplash.com/photo-1642104704074-907c0698cbd9?w=1920&q=80')`
         }}
       >
         <div className="text-center py-20 sm:py-32 max-w-3xl mx-auto px-4">
@@ -287,7 +287,7 @@ export function Landing() {
               </Button>
             </Link>
             <Link href="/calculator">
-              <Button variant="secondary" className="gap-2 w-full sm:w-auto border-white/30 text-white hover:bg-white/10">
+              <Button variant="ghost" className="gap-2 w-full sm:w-auto border border-white/40 text-white hover:bg-white/10 hover:text-white">
                 <BarChart3 className="w-4 h-4" />
                 Try Calculator
               </Button>

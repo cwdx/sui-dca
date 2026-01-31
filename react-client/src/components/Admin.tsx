@@ -42,10 +42,32 @@ function blobIdToString(blobId: number[]): string {
 // Executor Status Component
 function ExecutorStatus() {
   const account = useCurrentAccount();
-  const { data: health, isLoading, isError } = useExecutorHealth();
+  const client = useSuiClient();
+  const { mutate: signAndExecute, isPending: isSending } = useSignAndExecuteTransaction();
+  const { data: health, isLoading, isError, refetch } = useExecutorHealth();
   const [copied, setCopied] = useState(false);
   const [showQRDialog, setShowQRDialog] = useState(false);
+  const [fundAmount, setFundAmount] = useState("");
   const apiUrl = getExecutorApiUrl();
+
+  const handleFundExecutor = () => {
+    if (!account || !health?.executor?.address || !fundAmount) return;
+    const amountInMist = BigInt(Math.floor(parseFloat(fundAmount) * 1_000_000_000));
+    const tx = new Transaction();
+    tx.transferObjects(
+      [tx.splitCoins(tx.gas, [amountInMist])],
+      health.executor.address
+    );
+    signAndExecute(
+      { transaction: tx },
+      {
+        onSuccess: () => {
+          setFundAmount("");
+          refetch();
+        },
+      }
+    );
+  };
 
   const copyAddress = async (address: string) => {
     await navigator.clipboard.writeText(address);
@@ -156,9 +178,15 @@ function ExecutorStatus() {
                         className="font-mono flex-1"
                         step="0.1"
                         min="0"
+                        value={fundAmount}
+                        onChange={(e) => setFundAmount(e.target.value)}
                       />
-                      <Button size="sm" disabled>
-                        Send SUI
+                      <Button
+                        size="sm"
+                        onClick={handleFundExecutor}
+                        disabled={isSending || !fundAmount || parseFloat(fundAmount) <= 0}
+                      >
+                        {isSending ? "Sending..." : "Send SUI"}
                       </Button>
                     </div>
                   ) : (
@@ -172,9 +200,11 @@ function ExecutorStatus() {
                       <ConnectButton />
                     </div>
                   )}
-                  <p className="text-xs text-foreground-muted mt-2">
-                    Connect wallet to send SUI to the executor.
-                  </p>
+                  {!account && (
+                    <p className="text-xs text-foreground-muted mt-2">
+                      Connect wallet to send SUI to the executor.
+                    </p>
+                  )}
                 </div>
               </div>
 
