@@ -491,8 +491,8 @@ export function Admin() {
     <div className="space-y-6">
       {/* Executor Status */}
       <ExecutorStatus />
-      {/* Admin Status Banner */}
-      {isAdmin ? (
+      {/* Admin Status Banner - only show when admin */}
+      {isAdmin && (
         <div className="flex items-center gap-3 rounded-lg border border-status-success/20 bg-status-success-bg p-4">
           <Shield className="w-5 h-5 text-status-success" />
           <div>
@@ -501,18 +501,6 @@ export function Admin() {
             </p>
             <p className="text-sm text-foreground-secondary">
               You own the AdminCap and can modify protocol settings
-            </p>
-          </div>
-        </div>
-      ) : (
-        <div className="flex items-center gap-3 rounded-lg border border-border bg-background-secondary p-4">
-          <AlertTriangle className="w-5 h-5 text-foreground-tertiary" />
-          <div>
-            <p className="font-medium text-foreground-secondary">
-              Read-Only Mode
-            </p>
-            <p className="text-sm text-foreground-muted">
-              Connect with the admin wallet to modify settings
             </p>
           </div>
         </div>

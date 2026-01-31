@@ -58,9 +58,9 @@ function Header() {
 
           {/* Desktop nav */}
           <nav className="hidden md:flex items-center gap-1">
-            <NavLink href="/">Home</NavLink>
             <NavLink href="/dca">Dashboard</NavLink>
             <NavLink href="/calculator">Calculator</NavLink>
+            <NavLink href="/protocol">Protocol</NavLink>
           </nav>
         </div>
 
@@ -82,9 +82,9 @@ function Header() {
       {/* Mobile nav */}
       {mobileMenuOpen && (
         <nav className="md:hidden border-t border-border px-4 py-3 flex flex-col gap-1 bg-background-primary">
-          <NavLink href="/">Home</NavLink>
           <NavLink href="/dca">Dashboard</NavLink>
           <NavLink href="/calculator">Calculator</NavLink>
+          <NavLink href="/protocol">Protocol</NavLink>
         </nav>
       )}
     </header>
