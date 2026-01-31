@@ -10,8 +10,9 @@ import {
 import { useMemo } from "react";
 import { Area, AreaChart, ResponsiveContainer } from "recharts";
 import { Link } from "wouter";
+import { TokenIcon } from "@/components/TokenIcon";
 import { Button, Card, CardContent } from "@/components/ui";
-import { TOKENS } from "@/config/tokens";
+import { TOKENS, type TokenInfo } from "@/config/tokens";
 import {
   calculateBacktest,
   useHistoricalPrices,
@@ -39,57 +40,76 @@ function FeatureCard({ icon, title, description }: FeatureCardProps) {
   );
 }
 
-// Stats card component with mini sparkline
+// Stats card component with mini sparkline and token icon
 interface StatCardProps {
   label: string;
   value: string;
   subtext?: string;
   trend?: "up" | "down" | "neutral";
   chartData?: { value: number }[];
+  token?: TokenInfo;
+  totalInvested?: number;
+  currentValue?: number;
 }
 
-function StatCard({ label, value, subtext, trend, chartData }: StatCardProps) {
+function StatCard({ label, value, subtext, trend, chartData, token, totalInvested, currentValue }: StatCardProps) {
   const trendColor = trend === "up" ? "#166534" : trend === "down" ? "#991B1B" : "#737373";
 
   return (
     <Card className="hover:border-border-strong transition-colors cursor-pointer">
-      <CardContent className="p-5">
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex-1 min-w-0">
-            <p className="text-xs text-foreground-muted uppercase tracking-wide mb-1">
-              {label}
-            </p>
-            <p
-              className={`text-xl sm:text-2xl font-mono font-medium ${
-                trend === "up"
-                  ? "text-status-success"
-                  : trend === "down"
-                    ? "text-status-error"
-                    : "text-foreground-primary"
-              }`}
-            >
-              {value}
-            </p>
-            {subtext && (
-              <p className="text-xs text-foreground-muted mt-1 truncate">{subtext}</p>
-            )}
-          </div>
-          {chartData && chartData.length > 0 && (
-            <div className="w-20 h-12 flex-shrink-0">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={chartData}>
-                  <Area
-                    type="monotone"
-                    dataKey="value"
-                    stroke={trendColor}
-                    fill={trendColor}
-                    fillOpacity={0.1}
-                    strokeWidth={1.5}
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
+      <CardContent className="p-4 sm:p-5">
+        <div className="flex items-start gap-3">
+          {/* Token icon */}
+          {token && (
+            <div className="flex-shrink-0">
+              <TokenIcon token={token} size="md" />
             </div>
           )}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-start justify-between gap-2">
+              <div className="min-w-0">
+                <p className="text-xs text-foreground-muted uppercase tracking-wide mb-0.5">
+                  {label}
+                </p>
+                <p
+                  className={`text-xl font-mono font-medium ${
+                    trend === "up"
+                      ? "text-status-success"
+                      : trend === "down"
+                        ? "text-status-error"
+                        : "text-foreground-primary"
+                  }`}
+                >
+                  {value}
+                </p>
+              </div>
+              {chartData && chartData.length > 0 && (
+                <div className="w-16 h-10 flex-shrink-0">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={chartData}>
+                      <Area
+                        type="monotone"
+                        dataKey="value"
+                        stroke={trendColor}
+                        fill={trendColor}
+                        fillOpacity={0.1}
+                        strokeWidth={1.5}
+                      />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </div>
+              )}
+            </div>
+            {/* Additional stats */}
+            <div className="mt-2 pt-2 border-t border-border text-xs text-foreground-muted space-y-0.5">
+              {subtext && <p className="truncate">{subtext}</p>}
+              {totalInvested && currentValue && (
+                <p className="font-mono">
+                  ${totalInvested.toLocaleString()} → ${currentValue.toLocaleString()}
+                </p>
+              )}
+            </div>
+          </div>
         </div>
       </CardContent>
     </Card>
@@ -171,33 +191,42 @@ function HistoricalStats() {
       {suiBacktest && (
         <Link href="/dca?input=USDC&output=SUI&interval=week">
           <StatCard
-            label="SUI 1Y DCA"
+            label="SUI Weekly DCA"
             value={`${suiBacktest.dcaReturn >= 0 ? "+" : ""}${suiBacktest.dcaReturn.toFixed(1)}%`}
-            subtext={`$100/week · ${suiBacktest.dcaTokensAcquired.toFixed(2)} SUI`}
+            subtext={`${suiBacktest.dcaTokensAcquired.toFixed(2)} SUI acquired`}
             trend={suiBacktest.dcaReturn >= 0 ? "up" : "down"}
             chartData={getChartData(suiBacktest)}
+            token={TOKENS.SUI}
+            totalInvested={Math.round(suiBacktest.totalInvested)}
+            currentValue={Math.round(suiBacktest.dcaCurrentValue)}
           />
         </Link>
       )}
       {ethBacktest && (
         <Link href="/dca?input=USDC&output=WETH&interval=week">
           <StatCard
-            label="ETH 1Y DCA"
+            label="ETH Weekly DCA"
             value={`${ethBacktest.dcaReturn >= 0 ? "+" : ""}${ethBacktest.dcaReturn.toFixed(1)}%`}
-            subtext={`$100/week · ${ethBacktest.dcaTokensAcquired.toFixed(4)} ETH`}
+            subtext={`${ethBacktest.dcaTokensAcquired.toFixed(4)} ETH acquired`}
             trend={ethBacktest.dcaReturn >= 0 ? "up" : "down"}
             chartData={getChartData(ethBacktest)}
+            token={TOKENS.WETH}
+            totalInvested={Math.round(ethBacktest.totalInvested)}
+            currentValue={Math.round(ethBacktest.dcaCurrentValue)}
           />
         </Link>
       )}
       {btcBacktest && (
         <Link href="/dca?input=USDC&output=WBTC&interval=week">
           <StatCard
-            label="BTC 1Y DCA"
+            label="BTC Weekly DCA"
             value={`${btcBacktest.dcaReturn >= 0 ? "+" : ""}${btcBacktest.dcaReturn.toFixed(1)}%`}
-            subtext={`$100/week · ${btcBacktest.dcaTokensAcquired.toFixed(6)} BTC`}
+            subtext={`${btcBacktest.dcaTokensAcquired.toFixed(6)} BTC acquired`}
             trend={btcBacktest.dcaReturn >= 0 ? "up" : "down"}
             chartData={getChartData(btcBacktest)}
+            token={TOKENS.WBTC}
+            totalInvested={Math.round(btcBacktest.totalInvested)}
+            currentValue={Math.round(btcBacktest.dcaCurrentValue)}
           />
         </Link>
       )}
