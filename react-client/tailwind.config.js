@@ -19,8 +19,8 @@ export default {
           inverse: "#FFFFFF",
         },
         border: {
-          DEFAULT: "#E5E5E5",
-          subtle: "#F0F0F0",
+          DEFAULT: "#DEDEDE",
+          subtle: "#EFEFEF",
           strong: "#D4D4D4",
         },
         accent: {
@@ -82,6 +82,7 @@ export default {
         lg: "0.75rem",
         xl: "1rem",
         "2xl": "1.5rem",
+        "3xl": "1.5rem",
       },
       boxShadow: {
         sm: "0 1px 2px 0 rgb(0 0 0 / 0.05)",

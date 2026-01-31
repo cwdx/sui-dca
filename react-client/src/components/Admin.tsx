@@ -136,7 +136,7 @@ function ExecutorStatus() {
                     <QrCode className="w-4 h-4" />
                   </Button>
                 </div>
-                <div className="flex items-center justify-between mt-3 p-3 rounded-lg bg-background-secondary">
+                <div className="flex items-center justify-between mt-3 p-3 rounded-lg bg-black/[0.02]">
                   <span className="text-sm text-foreground-secondary">Balance</span>
                   <span className="font-mono font-medium text-foreground-primary">
                     {health.executor.balance}

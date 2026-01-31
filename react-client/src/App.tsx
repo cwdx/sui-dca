@@ -45,12 +45,12 @@ function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <header className="border-b border-border">
-      <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-4 md:gap-8">
-          <Link href="/" className="flex items-center gap-2 md:gap-3">
+    <header className="border-b border-border bg-background-primary">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
+        <div className="flex items-center gap-6 md:gap-10">
+          <Link href="/" className="flex items-center gap-2.5">
             <img src={`${import.meta.env.BASE_URL}sui.svg`} alt="Sui" className="w-7 h-7 md:w-8 md:h-8" />
-            <span className="text-lg md:text-h4 font-serif text-foreground-primary">
+            <span className="text-lg md:text-xl font-serif font-medium text-foreground-primary">
               Sui DCA
             </span>
           </Link>
@@ -63,7 +63,7 @@ function Header() {
           </nav>
         </div>
 
-        <div className="flex items-center gap-2 md:gap-4">
+        <div className="flex items-center gap-3">
           {account ? <AccountMenu /> : <ConnectButton />}
 
           {/* Mobile menu button */}
@@ -80,7 +80,7 @@ function Header() {
 
       {/* Mobile nav */}
       {mobileMenuOpen && (
-        <nav className="md:hidden border-t border-border px-4 py-2 flex flex-col gap-1 bg-background-secondary">
+        <nav className="md:hidden border-t border-border px-4 py-3 flex flex-col gap-1 bg-background-primary">
           <NavLink href="/">Dashboard</NavLink>
           <NavLink href="/calculator">Calculator</NavLink>
           <NavLink href="/admin">Admin</NavLink>
@@ -92,45 +92,45 @@ function Header() {
 
 function Landing() {
   return (
-    <div className="text-center py-20 max-w-2xl mx-auto">
+    <div className="text-center py-16 sm:py-24 max-w-2xl mx-auto">
       <p className="overline mb-4">Automated Investing on Sui</p>
-      <h1 className="text-display font-serif text-foreground-primary mb-6">
+      <h1 className="text-h1 sm:text-display font-serif text-foreground-primary mb-6">
         Dollar Cost Averaging,
         <br />
         Made Simple
       </h1>
-      <p className="text-body-lg text-foreground-secondary mb-10 max-w-lg mx-auto">
+      <p className="text-body sm:text-body-lg text-foreground-secondary mb-10 max-w-lg mx-auto px-4">
         Automate your crypto investments with trustless, oracle-powered DCA
         strategies on Sui blockchain.
       </p>
-      <div className="flex gap-4 justify-center">
+      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center px-4">
         <ConnectButton />
         <Link href="/calculator">
-          <Button variant="secondary" className="gap-2">
+          <Button variant="secondary" className="gap-2 w-full sm:w-auto">
             <Calculator className="w-4 h-4" />
             Try Calculator
           </Button>
         </Link>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8 mt-16 sm:mt-20 text-left">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 sm:gap-10 mt-16 sm:mt-24 text-left px-4">
         <div>
-          <h3 className="text-h4 font-serif mb-2">Oracle-Powered</h3>
-          <p className="text-foreground-secondary text-sm">
+          <h3 className="text-lg font-serif font-medium mb-2">Oracle-Powered</h3>
+          <p className="text-foreground-tertiary text-sm leading-relaxed">
             Pyth Network oracles ensure fair pricing on every trade with
             slippage protection.
           </p>
         </div>
         <div>
-          <h3 className="text-h4 font-serif mb-2">Fully Automated</h3>
-          <p className="text-foreground-secondary text-sm">
+          <h3 className="text-lg font-serif font-medium mb-2">Fully Automated</h3>
+          <p className="text-foreground-tertiary text-sm leading-relaxed">
             Set your schedule and forget. Permissionless executors trigger your
             trades on time.
           </p>
         </div>
         <div>
-          <h3 className="text-h4 font-serif mb-2">Non-Custodial</h3>
-          <p className="text-foreground-secondary text-sm">
+          <h3 className="text-lg font-serif font-medium mb-2">Non-Custodial</h3>
+          <p className="text-foreground-tertiary text-sm leading-relaxed">
             Your funds stay in your DCA account. Cancel anytime and withdraw
             instantly.
           </p>
@@ -142,10 +142,10 @@ function Landing() {
 
 function Dashboard() {
   return (
-    <div className="grid lg:grid-cols-2 gap-12">
+    <div className="grid lg:grid-cols-2 gap-8 lg:gap-12">
       <div>
         <p className="overline mb-2">New Strategy</p>
-        <h2 className="text-h2 font-serif text-foreground-primary mb-6">
+        <h2 className="text-h3 sm:text-h2 font-serif text-foreground-primary mb-5 sm:mb-6">
           Create DCA
         </h2>
         <CreateDCA />
@@ -153,7 +153,7 @@ function Dashboard() {
 
       <div>
         <p className="overline mb-2">Your Strategies</p>
-        <h2 className="text-h2 font-serif text-foreground-primary mb-6">
+        <h2 className="text-h3 sm:text-h2 font-serif text-foreground-primary mb-5 sm:mb-6">
           Active DCAs
         </h2>
         <MyDCAs />
@@ -182,27 +182,27 @@ function Footer() {
   const { data: health, isLoading, isError } = useExecutorHealth();
 
   return (
-    <footer className="border-t border-border mt-auto">
-      <div className="max-w-7xl mx-auto px-4 py-6">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-body-sm">
+    <footer className="border-t border-border mt-auto bg-background-primary">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-sm">
           {/* Links */}
-          <div className="flex items-center gap-4 text-foreground-muted">
+          <div className="flex items-center gap-4 text-foreground-tertiary">
             <span>Powered by</span>
             <a
               href="https://sui.io"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-accent hover:underline"
+              className="inline-flex items-center gap-1.5 text-foreground-secondary hover:text-foreground-primary transition-colors"
             >
               Sui
               <ExternalLink className="w-3 h-3" />
             </a>
-            <span>&bull;</span>
+            <span className="text-foreground-muted">&bull;</span>
             <a
               href="https://pyth.network"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-accent hover:underline"
+              className="inline-flex items-center gap-1.5 text-foreground-secondary hover:text-foreground-primary transition-colors"
             >
               Pyth Network
               <ExternalLink className="w-3 h-3" />
@@ -210,19 +210,19 @@ function Footer() {
           </div>
 
           {/* Executor Status */}
-          <div className="flex items-center gap-3 text-foreground-muted">
+          <div className="flex items-center gap-2.5 text-foreground-tertiary">
             <Activity className="w-4 h-4" />
             <span>Executor:</span>
             {isLoading ? (
-              <span className="text-foreground-tertiary">Checking...</span>
+              <span className="text-foreground-muted">Checking...</span>
             ) : isError ? (
               <span className="text-status-error">Offline</span>
             ) : health ? (
               <div className="flex items-center gap-2">
-                <span className="text-status-success">Online</span>
-                <span className="text-foreground-tertiary">|</span>
-                <Wallet className="w-3 h-3" />
-                <span className="font-mono text-xs">{health.executor.balance}</span>
+                <span className="text-status-success font-medium">Online</span>
+                <span className="text-border-strong">|</span>
+                <Wallet className="w-3.5 h-3.5" />
+                <span className="font-mono text-xs text-foreground-secondary">{health.executor.balance}</span>
               </div>
             ) : null}
           </div>
@@ -243,7 +243,7 @@ function AppContent() {
       <Header />
       <Toaster />
 
-      <main className="flex-1 max-w-7xl mx-auto px-4 py-12 w-full">
+      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 w-full">
         <Switch>
           <Route path="/" component={Dashboard} />
           <Route path="/calculator" component={CalculatorPage} />

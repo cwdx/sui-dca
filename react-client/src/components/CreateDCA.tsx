@@ -77,7 +77,6 @@ interface StrategyPreset {
   numOrders: string;
   interval: string;
   timeScale: TimeScale;
-  color: string;
 }
 
 const STRATEGY_PRESETS: StrategyPreset[] = [
@@ -92,7 +91,6 @@ const STRATEGY_PRESETS: StrategyPreset[] = [
     numOrders: "30",
     interval: "1",
     timeScale: "day",
-    color: "from-blue-500/10 to-cyan-500/10 border-blue-500/20",
   },
   {
     id: "btc-builder",
@@ -105,7 +103,6 @@ const STRATEGY_PRESETS: StrategyPreset[] = [
     numOrders: "12",
     interval: "1",
     timeScale: "week",
-    color: "from-orange-500/10 to-amber-500/10 border-orange-500/20",
   },
   {
     id: "eth-accumulator",
@@ -118,7 +115,6 @@ const STRATEGY_PRESETS: StrategyPreset[] = [
     numOrders: "12",
     interval: "1",
     timeScale: "week",
-    color: "from-purple-500/10 to-indigo-500/10 border-purple-500/20",
   },
   {
     id: "deep-diver",
@@ -131,7 +127,6 @@ const STRATEGY_PRESETS: StrategyPreset[] = [
     numOrders: "12",
     interval: "1",
     timeScale: "week",
-    color: "from-teal-500/10 to-emerald-500/10 border-teal-500/20",
   },
   {
     id: "profit-taker",
@@ -144,7 +139,6 @@ const STRATEGY_PRESETS: StrategyPreset[] = [
     numOrders: "10",
     interval: "1",
     timeScale: "week",
-    color: "from-green-500/10 to-emerald-500/10 border-green-500/20",
   },
   {
     id: "micro-dca",
@@ -157,7 +151,6 @@ const STRATEGY_PRESETS: StrategyPreset[] = [
     numOrders: "24",
     interval: "1",
     timeScale: "hour",
-    color: "from-pink-500/10 to-rose-500/10 border-pink-500/20",
   },
 ];
 
@@ -547,10 +540,10 @@ export function CreateDCA() {
               <button
                 key={preset.id}
                 onClick={() => applyPreset(preset)}
-                className={`relative text-left p-3 sm:p-4 rounded-xl border transition-all ${
+                className={`relative text-left p-4 rounded-xl border transition-all ${
                   selectedPreset === preset.id
-                    ? "border-accent bg-accent/5 ring-1 ring-accent"
-                    : `bg-gradient-to-br ${preset.color} hover:border-foreground-muted`
+                    ? "border-accent bg-background-secondary ring-1 ring-accent"
+                    : "border-border bg-background-primary hover:bg-background-secondary hover:border-border-strong"
                 }`}
               >
                 <div className="flex items-start gap-3">
@@ -558,7 +551,7 @@ export function CreateDCA() {
                     className={`p-2 rounded-lg ${
                       selectedPreset === preset.id
                         ? "bg-accent text-foreground-inverse"
-                        : "bg-background-primary/50"
+                        : "bg-background-tertiary text-foreground-secondary"
                     }`}
                   >
                     {preset.icon}
@@ -567,12 +560,11 @@ export function CreateDCA() {
                     <p className="font-medium text-sm text-foreground-primary truncate">
                       {preset.name}
                     </p>
-                    <p className="text-xs text-foreground-muted mt-0.5 line-clamp-2">
+                    <p className="text-xs text-foreground-tertiary mt-0.5 line-clamp-2">
                       {preset.description}
                     </p>
-                    <p className="text-xs font-mono text-foreground-tertiary mt-2">
-                      {preset.amountPerOrder} {preset.inputToken} →{" "}
-                      {preset.outputToken}
+                    <p className="text-xs font-mono text-foreground-muted mt-2">
+                      {preset.amountPerOrder} {preset.inputToken} → {preset.outputToken}
                     </p>
                   </div>
                 </div>

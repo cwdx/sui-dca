@@ -404,7 +404,7 @@ function DCACard({ dca }: { dca: DCAAccount }) {
   return (
     <Card className="overflow-hidden">
       {/* Header with token pair */}
-      <div className="bg-background-secondary px-6 py-4 border-b border-border">
+      <div className="bg-background-secondary px-5 sm:px-6 py-4 border-b border-border">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             {/* Token pair visualization */}
@@ -455,7 +455,7 @@ function DCACard({ dca }: { dca: DCAAccount }) {
         </div>
       </div>
 
-      <CardContent className="p-6">
+      <CardContent className="p-5 sm:p-6">
         {/* Progress section */}
         <div className="mb-6">
           <div className="flex items-center justify-between mb-2">
@@ -479,8 +479,8 @@ function DCACard({ dca }: { dca: DCAAccount }) {
         </div>
 
         {/* Stats grid */}
-        <div className="grid grid-cols-3 gap-4 mb-6">
-          <div className="rounded-lg bg-background-secondary p-3">
+        <div className="grid grid-cols-3 gap-2 sm:gap-4 mb-6">
+          <div className="rounded-lg bg-black/[0.02] p-3">
             <p className="text-xs text-foreground-muted uppercase tracking-wide mb-1">
               Orders
             </p>
@@ -491,7 +491,7 @@ function DCACard({ dca }: { dca: DCAAccount }) {
               </span>
             </p>
           </div>
-          <div className="rounded-lg bg-background-secondary p-3">
+          <div className="rounded-lg bg-black/[0.02] p-3">
             <p className="text-xs text-foreground-muted uppercase tracking-wide mb-1">
               Remaining
             </p>
@@ -506,7 +506,7 @@ function DCACard({ dca }: { dca: DCAAccount }) {
               </span>
             </p>
           </div>
-          <div className="rounded-lg bg-background-secondary p-3">
+          <div className="rounded-lg bg-black/[0.02] p-3">
             <p className="text-xs text-foreground-muted uppercase tracking-wide mb-1">
               Next Trade
             </p>

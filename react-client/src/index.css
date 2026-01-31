@@ -20,8 +20,8 @@
     --fg-inverse: #ffffff;
 
     /* Border */
-    --border-default: #e5e5e5;
-    --border-subtle: #f0f0f0;
+    --border-default: #dedede;
+    --border-subtle: #efefef;
     --border-strong: #d4d4d4;
 
     /* Accent */
@@ -78,7 +78,7 @@
 @layer components {
   /* Primary Button */
   .btn-primary {
-    @apply bg-accent text-foreground-inverse px-6 py-3 rounded-md font-medium text-body-sm tracking-wide transition-colors duration-150;
+    @apply bg-accent text-foreground-inverse px-6 py-3 rounded-lg font-medium text-body-sm tracking-wide transition-colors duration-150;
   }
   .btn-primary:hover {
     @apply bg-accent-hover;
@@ -89,7 +89,7 @@
 
   /* Secondary Button */
   .btn-secondary {
-    @apply bg-background-primary text-foreground-primary border border-border px-6 py-3 rounded-md font-medium text-body-sm transition-colors duration-150;
+    @apply bg-background-primary text-foreground-primary border border-border px-6 py-3 rounded-lg font-medium text-body-sm transition-colors duration-150;
   }
   .btn-secondary:hover {
     @apply bg-background-secondary;
@@ -97,7 +97,7 @@
 
   /* Ghost Button */
   .btn-ghost {
-    @apply bg-transparent text-foreground-secondary px-4 py-2 rounded-md text-body-sm transition-colors duration-150;
+    @apply bg-transparent text-foreground-secondary px-4 py-2 rounded-lg text-body-sm transition-colors duration-150;
   }
   .btn-ghost:hover {
     @apply bg-background-tertiary;
@@ -105,15 +105,15 @@
 
   /* Card */
   .card {
-    @apply bg-background-primary border border-border rounded-xl p-6;
+    @apply bg-background-primary border border-border rounded-2xl p-6;
   }
 
   /* Input */
   .input {
-    @apply bg-background-primary border border-border rounded-md px-4 py-3 text-foreground-primary placeholder:text-foreground-muted transition-colors duration-150;
+    @apply bg-black/[0.03] border-0 rounded-lg px-4 py-3 text-foreground-primary placeholder:text-foreground-muted transition-colors duration-150;
   }
   .input:focus {
-    @apply border-accent outline-none;
+    @apply outline-none ring-2 ring-accent/20;
   }
 
   /* Badge/Status */
