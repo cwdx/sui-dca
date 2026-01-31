@@ -270,7 +270,6 @@ export function Landing() {
         }}
       >
         <div className="text-center py-16 sm:py-24 max-w-3xl mx-auto px-4">
-          <p className="overline mb-4">Automated Investing on Sui</p>
           <h1 className="text-h1 sm:text-display text-foreground-primary mb-6">
             Dollar Cost Averaging,
             <br />
@@ -301,12 +300,11 @@ export function Landing() {
       <section className="px-4">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-10">
-            <p className="overline mb-2">Historical Performance</p>
             <h2 className="text-h3 sm:text-h2 text-foreground-primary">
-              See How DCA Performs
+              Historical Performance
             </h2>
             <p className="text-foreground-secondary mt-2 max-w-lg mx-auto">
-              Real returns from $100/week DCA strategies using Pyth historical data
+              Real returns from $100/week DCA strategies using Pyth data
             </p>
           </div>
           <HistoricalStats />
@@ -320,9 +318,8 @@ export function Landing() {
       <section className="px-4">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-12">
-            <p className="overline mb-2">Why Sui DCA</p>
             <h2 className="text-h3 sm:text-h2 text-foreground-primary">
-              Built for Serious Investors
+              Why Sui DCA
             </h2>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">

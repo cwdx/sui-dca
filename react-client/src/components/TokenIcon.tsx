@@ -79,9 +79,9 @@ export function TokenSelectDisplay({
   const { data: metadata } = useTokenMetadata(token);
 
   return (
-    <div className={cn("flex items-center gap-3", className)}>
+    <div className={cn("flex items-center gap-3 text-left", className)}>
       <TokenIcon token={token} size="md" />
-      <div className="flex flex-col">
+      <div className="flex flex-col items-start">
         <span className="font-medium text-foreground-primary">
           {token.symbol}
         </span>

@@ -141,13 +141,11 @@ export function DCACalculator() {
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <p className="overline mb-2">Historical Backtest</p>
         <h1 className="text-h2 text-foreground-primary">
           DCA Calculator
         </h1>
         <p className="text-foreground-secondary mt-2">
-          See how DCA would have performed using real historical prices from
-          Pyth
+          See how DCA would have performed using real historical prices from Pyth
         </p>
       </div>
 

@@ -101,7 +101,6 @@ function Dashboard() {
   return (
     <div className="grid lg:grid-cols-2 gap-8 lg:gap-12">
       <div>
-        <p className="overline mb-2">New Strategy</p>
         <h2 className="text-h3 sm:text-h2 text-foreground-primary mb-5 sm:mb-6">
           Create DCA
         </h2>
@@ -109,9 +108,8 @@ function Dashboard() {
       </div>
 
       <div>
-        <p className="overline mb-2">Your Strategies</p>
         <h2 className="text-h3 sm:text-h2 text-foreground-primary mb-5 sm:mb-6">
-          Active DCAs
+          Your DCAs
         </h2>
         <MyDCAs />
       </div>
@@ -126,7 +124,6 @@ function CalculatorPage() {
 function ProtocolPage() {
   return (
     <div className="max-w-4xl">
-      <p className="overline mb-2">Protocol Management</p>
       <h2 className="text-h2 text-foreground-primary mb-6">
         Protocol
       </h2>

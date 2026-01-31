@@ -133,10 +133,6 @@
     @apply bg-status-info-bg text-status-info;
   }
 
-  /* Overline text style */
-  .overline {
-    @apply text-overline font-semibold uppercase tracking-widest text-foreground-tertiary;
-  }
 }
 
 @layer utilities {
