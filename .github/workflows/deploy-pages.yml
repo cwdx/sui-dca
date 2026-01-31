@@ -42,6 +42,7 @@ jobs:
         env:
           # Custom domain uses root path
           VITE_BASE_PATH: /
+          VITE_EXECUTOR_API_URL: ${{ vars.VITE_EXECUTOR_API_URL }}
         run: npm run build
 
       - name: Setup Pages

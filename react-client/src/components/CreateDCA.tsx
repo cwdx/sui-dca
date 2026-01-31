@@ -1,4 +1,5 @@
 import {
+  ConnectButton,
   useCurrentAccount,
   useSignAndExecuteTransaction,
   useSuiClient,
@@ -957,23 +958,27 @@ export function CreateDCA() {
             )}
 
             {/* Submit */}
-            <Button
-              onClick={handleCreateClick}
-              disabled={isPending || !canCreate}
-              className="w-full gap-2"
-            >
-              {isPending ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  Creating...
-                </>
-              ) : (
-                <>
-                  <Zap className="w-4 h-4" />
-                  {termsAccepted ? "Create DCA" : "Review Terms & Create"}
-                </>
-              )}
-            </Button>
+            {account ? (
+              <Button
+                onClick={handleCreateClick}
+                disabled={isPending || !canCreate}
+                className="w-full gap-2"
+              >
+                {isPending ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Creating...
+                  </>
+                ) : (
+                  <>
+                    <Zap className="w-4 h-4" />
+                    {termsAccepted ? "Create DCA" : "Review Terms & Create"}
+                  </>
+                )}
+              </Button>
+            ) : (
+              <ConnectButton className="w-full" />
+            )}
           </CardContent>
         </Card>
       </div>

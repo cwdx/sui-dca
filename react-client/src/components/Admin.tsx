@@ -5,8 +5,10 @@ import {
 } from "@mysten/dapp-kit";
 import { Transaction } from "@mysten/sui/transactions";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { AlertTriangle, ExternalLink, FileText, Shield } from "lucide-react";
+import { AlertTriangle, ExternalLink, Shield, Activity, Wallet, Copy, Check } from "lucide-react";
+import { useExecutorHealth, getExecutorApiUrl } from "@/hooks/useExecutorHealth";
 import { useState } from "react";
+import { ConnectButton } from "@mysten/dapp-kit";
 import {
   Badge,
   Button,
@@ -28,6 +30,115 @@ function blobIdToString(blobId: number[]): string {
     .replace(/\//g, "_")
     .replace(/=+$/, "");
   return base64;
+}
+
+// Executor Status Component
+function ExecutorStatus() {
+  const { data: health, isLoading, isError } = useExecutorHealth();
+  const [copied, setCopied] = useState(false);
+  const apiUrl = getExecutorApiUrl();
+
+  const copyAddress = async (address: string) => {
+    await navigator.clipboard.writeText(address);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Activity className="w-5 h-5" />
+          Executor Status
+        </CardTitle>
+        <CardDescription>
+          Automated trade executor service
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        {isLoading ? (
+          <p className="text-foreground-muted">Checking executor status...</p>
+        ) : isError || !health ? (
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 text-status-error">
+              <span className="w-2 h-2 rounded-full bg-status-error" />
+              <span className="font-medium">Offline</span>
+            </div>
+            {apiUrl && (
+              <div>
+                <p className="text-xs text-foreground-tertiary mb-1">API Endpoint</p>
+                <p className="font-mono text-xs text-foreground-muted break-all">{apiUrl}</p>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+              <div>
+                <p className="text-foreground-tertiary mb-1">Status</p>
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-status-success" />
+                  <Badge variant="success">Online</Badge>
+                </div>
+              </div>
+              <div>
+                <p className="text-foreground-tertiary mb-1">Network</p>
+                <p className="font-mono">{health.network}</p>
+              </div>
+              <div>
+                <p className="text-foreground-tertiary mb-1">Runtime</p>
+                <p className="font-mono">{health.runtime}</p>
+              </div>
+              <div>
+                <p className="text-foreground-tertiary mb-1">Dry Run</p>
+                <Badge variant={health.dryRun ? "warning" : "secondary"}>
+                  {health.dryRun ? "Yes" : "No"}
+                </Badge>
+              </div>
+            </div>
+
+            <div className="pt-4 border-t border-border">
+              <p className="text-xs text-foreground-tertiary mb-2">Executor Wallet</p>
+              <div className="flex items-center gap-3">
+                <Wallet className="w-4 h-4 text-foreground-muted" />
+                <code className="font-mono text-xs text-foreground-secondary break-all flex-1">
+                  {health.executor.address}
+                </code>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => copyAddress(health.executor.address)}
+                  className="shrink-0"
+                >
+                  {copied ? (
+                    <Check className="w-4 h-4 text-status-success" />
+                  ) : (
+                    <Copy className="w-4 h-4" />
+                  )}
+                </Button>
+              </div>
+              <div className="flex items-center justify-between mt-3 p-3 rounded-lg bg-background-secondary">
+                <span className="text-sm text-foreground-secondary">Balance</span>
+                <span className="font-mono font-medium text-foreground-primary">
+                  {health.executor.balance}
+                </span>
+              </div>
+              <p className="text-xs text-foreground-muted mt-2">
+                Fund this address to ensure the executor can pay gas fees for trade execution.
+              </p>
+            </div>
+
+            {apiUrl && (
+              <div className="pt-4 border-t border-border">
+                <p className="text-xs text-foreground-tertiary mb-1">API Endpoint</p>
+                <p className="font-mono text-xs text-foreground-muted break-all">{apiUrl}</p>
+              </div>
+            )}
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
 }
 
 export function Admin() {
@@ -282,20 +393,10 @@ export function Admin() {
     }, "Fees withdrawn successfully");
   };
 
-  if (!account) {
-    return (
-      <Card>
-        <CardContent className="py-12 text-center">
-          <p className="text-foreground-secondary">
-            Connect wallet to view protocol status
-          </p>
-        </CardContent>
-      </Card>
-    );
-  }
-
   return (
     <div className="space-y-6">
+      {/* Executor Status */}
+      <ExecutorStatus />
       {/* Admin Status Banner */}
       {isAdmin ? (
         <div className="flex items-center gap-3 rounded-lg border border-status-success/20 bg-status-success-bg p-4">

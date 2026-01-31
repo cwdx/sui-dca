@@ -1,5 +1,5 @@
 import { ConnectButton, useCurrentAccount } from "@mysten/dapp-kit";
-import { Calculator } from "lucide-react";
+import { Calculator, ExternalLink, Activity, Wallet } from "lucide-react";
 import { Link, Route, Router, Switch, useLocation } from "wouter";
 import { AccountMenu } from "@/components/AccountMenu";
 import { Admin } from "@/components/Admin";
@@ -9,6 +9,7 @@ import { MyDCAs } from "@/components/MyDCAs";
 import { Toaster } from "@/components/Toaster";
 import { Button } from "@/components/ui";
 import { useDCAEventSubscription } from "@/hooks/useDCAEvents";
+import { useExecutorHealth } from "@/hooks/useExecutorHealth";
 import { cn } from "@/lib/utils";
 
 // Get base path from Vite (for GitHub Pages deployment)
@@ -53,14 +54,9 @@ function Header() {
           </Link>
 
           <nav className="flex items-center gap-1">
-            {account && (
-              <>
-                <NavLink href="/">Dashboard</NavLink>
-                <NavLink href="/calculator">Calculator</NavLink>
-                <NavLink href="/admin">Admin</NavLink>
-              </>
-            )}
-            {!account && <NavLink href="/calculator">Calculator</NavLink>}
+            <NavLink href="/">Dashboard</NavLink>
+            <NavLink href="/calculator">Calculator</NavLink>
+            <NavLink href="/admin">Admin</NavLink>
           </nav>
         </div>
 
@@ -160,6 +156,60 @@ function AdminPage() {
   );
 }
 
+function Footer() {
+  const { data: health, isLoading, isError } = useExecutorHealth();
+
+  return (
+    <footer className="border-t border-border mt-auto">
+      <div className="max-w-7xl mx-auto px-4 py-6">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-body-sm">
+          {/* Links */}
+          <div className="flex items-center gap-4 text-foreground-muted">
+            <span>Powered by</span>
+            <a
+              href="https://sui.io"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-accent hover:underline"
+            >
+              Sui
+              <ExternalLink className="w-3 h-3" />
+            </a>
+            <span>&bull;</span>
+            <a
+              href="https://pyth.network"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-accent hover:underline"
+            >
+              Pyth Network
+              <ExternalLink className="w-3 h-3" />
+            </a>
+          </div>
+
+          {/* Executor Status */}
+          <div className="flex items-center gap-3 text-foreground-muted">
+            <Activity className="w-4 h-4" />
+            <span>Executor:</span>
+            {isLoading ? (
+              <span className="text-foreground-tertiary">Checking...</span>
+            ) : isError ? (
+              <span className="text-status-error">Offline</span>
+            ) : health ? (
+              <div className="flex items-center gap-2">
+                <span className="text-status-success">Online</span>
+                <span className="text-foreground-tertiary">|</span>
+                <Wallet className="w-3 h-3" />
+                <span className="font-mono text-xs">{health.executor.balance}</span>
+              </div>
+            ) : null}
+          </div>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
 function AppContent() {
   const account = useCurrentAccount();
 
@@ -173,26 +223,13 @@ function AppContent() {
 
       <main className="flex-1 max-w-7xl mx-auto px-4 py-12 w-full">
         <Switch>
-          {/* Calculator is always accessible */}
+          <Route path="/" component={Dashboard} />
           <Route path="/calculator" component={CalculatorPage} />
-
-          {/* These routes require wallet connection */}
-          {account ? (
-            <>
-              <Route path="/" component={Dashboard} />
-              <Route path="/admin" component={AdminPage} />
-            </>
-          ) : (
-            <Route path="/" component={Landing} />
-          )}
+          <Route path="/admin" component={AdminPage} />
         </Switch>
       </main>
 
-      <footer className="border-t border-border mt-auto">
-        <div className="max-w-7xl mx-auto px-4 py-6 text-center text-foreground-muted text-body-sm">
-          Powered by Sui blockchain &bull; Oracle pricing by Pyth Network
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

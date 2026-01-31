@@ -1,4 +1,5 @@
 import {
+  ConnectButton,
   useCurrentAccount,
   useSignAndExecuteTransaction,
   useSuiClient,
@@ -221,7 +222,22 @@ export function MyDCAs() {
   });
 
   if (!account) {
-    return null;
+    return (
+      <Card className="border-dashed">
+        <CardContent className="py-16 text-center">
+          <div className="w-16 h-16 rounded-full bg-background-tertiary mx-auto mb-4 flex items-center justify-center">
+            <Zap className="w-8 h-8 text-foreground-muted" />
+          </div>
+          <p className="text-lg font-serif text-foreground-primary mb-2">
+            Connect your wallet
+          </p>
+          <p className="text-sm text-foreground-muted max-w-sm mx-auto mb-6">
+            Connect your wallet to view your DCA strategies
+          </p>
+          <ConnectButton />
+        </CardContent>
+      </Card>
+    );
   }
 
   if (isLoading) {
