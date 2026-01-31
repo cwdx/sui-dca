@@ -269,9 +269,9 @@ export function Landing() {
           <img
             src="https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=1920&q=80"
             alt=""
-            className="w-full h-full object-cover opacity-10"
+            className="w-full h-full object-cover opacity-20"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-background-primary via-background-primary/95 to-background-primary" />
+          <div className="absolute inset-0 bg-gradient-to-b from-background-primary/80 via-background-primary/60 to-background-primary" />
         </div>
 
         <div className="text-center py-16 sm:py-24 max-w-3xl mx-auto px-4">
