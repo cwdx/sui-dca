@@ -54,9 +54,8 @@ export default {
         },
       },
       fontFamily: {
-        serif: ["DM Serif Display", "Georgia", "Times New Roman", "serif"],
         sans: [
-          "DM Sans",
+          "Manrope",
           "-apple-system",
           "BlinkMacSystemFont",
           "Segoe UI",

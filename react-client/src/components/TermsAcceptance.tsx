@@ -126,7 +126,7 @@ export function TermsDialog({
           ) : termsContent ? (
             <article
               className="prose prose-sm prose-neutral max-w-none
-              prose-headings:font-serif prose-headings:text-foreground-primary prose-headings:font-medium
+              prose-headings:prose-headings:text-foreground-primary prose-headings:font-medium
               prose-h1:text-2xl prose-h2:text-xl prose-h3:text-lg
               prose-p:text-foreground-secondary prose-p:leading-relaxed
               prose-li:text-foreground-secondary prose-li:marker:text-foreground-muted

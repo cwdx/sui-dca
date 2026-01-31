@@ -32,7 +32,7 @@ function FeatureCard({ icon, title, description }: FeatureCardProps) {
       <div className="w-10 h-10 rounded-lg bg-accent text-foreground-inverse flex items-center justify-center mb-4">
         {icon}
       </div>
-      <h3 className="text-lg font-serif font-medium mb-2">{title}</h3>
+      <h3 className="text-lg font-medium mb-2">{title}</h3>
       <p className="text-foreground-tertiary text-sm leading-relaxed">
         {description}
       </p>
@@ -269,14 +269,14 @@ export function Landing() {
           <img
             src="https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=1920&q=80"
             alt=""
-            className="w-full h-full object-cover opacity-5"
+            className="w-full h-full object-cover opacity-10"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-background-primary via-background-primary/95 to-background-primary" />
         </div>
 
         <div className="text-center py-16 sm:py-24 max-w-3xl mx-auto px-4">
           <p className="overline mb-4">Automated Investing on Sui</p>
-          <h1 className="text-h1 sm:text-display font-serif text-foreground-primary mb-6">
+          <h1 className="text-h1 sm:text-display text-foreground-primary mb-6">
             Dollar Cost Averaging,
             <br />
             Made Simple
@@ -307,7 +307,7 @@ export function Landing() {
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-10">
             <p className="overline mb-2">Historical Performance</p>
-            <h2 className="text-h3 sm:text-h2 font-serif text-foreground-primary">
+            <h2 className="text-h3 sm:text-h2 text-foreground-primary">
               See How DCA Performs
             </h2>
             <p className="text-foreground-secondary mt-2 max-w-lg mx-auto">
@@ -326,7 +326,7 @@ export function Landing() {
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-12">
             <p className="overline mb-2">Why Sui DCA</p>
-            <h2 className="text-h3 sm:text-h2 font-serif text-foreground-primary">
+            <h2 className="text-h3 sm:text-h2 text-foreground-primary">
               Built for Serious Investors
             </h2>
           </div>
@@ -355,7 +355,7 @@ export function Landing() {
         <div className="max-w-3xl mx-auto">
           <Card className="bg-accent text-foreground-inverse border-0">
             <CardContent className="py-12 text-center">
-              <h2 className="text-h3 sm:text-h2 font-serif mb-4">
+              <h2 className="text-h3 sm:text-h2 mb-4">
                 Ready to Start Investing?
               </h2>
               <p className="text-foreground-inverse/80 mb-8 max-w-md mx-auto">

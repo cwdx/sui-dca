@@ -51,16 +51,16 @@ function Header() {
         <div className="flex items-center gap-6 md:gap-10">
           <Link href="/" className="flex items-center gap-2.5">
             <img src={`${import.meta.env.BASE_URL}sui.svg`} alt="Sui" className="w-7 h-7 md:w-8 md:h-8" />
-            <span className="text-lg md:text-xl font-serif font-medium text-foreground-primary">
+            <span className="text-lg md:text-xl font-medium text-foreground-primary">
               Sui DCA
             </span>
           </Link>
 
           {/* Desktop nav */}
           <nav className="hidden md:flex items-center gap-1">
+            <NavLink href="/">Home</NavLink>
             <NavLink href="/dca">Dashboard</NavLink>
             <NavLink href="/calculator">Calculator</NavLink>
-            <NavLink href="/admin">Admin</NavLink>
           </nav>
         </div>
 
@@ -82,9 +82,9 @@ function Header() {
       {/* Mobile nav */}
       {mobileMenuOpen && (
         <nav className="md:hidden border-t border-border px-4 py-3 flex flex-col gap-1 bg-background-primary">
+          <NavLink href="/">Home</NavLink>
           <NavLink href="/dca">Dashboard</NavLink>
           <NavLink href="/calculator">Calculator</NavLink>
-          <NavLink href="/admin">Admin</NavLink>
         </nav>
       )}
     </header>
@@ -100,7 +100,7 @@ function Dashboard() {
     <div className="grid lg:grid-cols-2 gap-8 lg:gap-12">
       <div>
         <p className="overline mb-2">New Strategy</p>
-        <h2 className="text-h3 sm:text-h2 font-serif text-foreground-primary mb-5 sm:mb-6">
+        <h2 className="text-h3 sm:text-h2 text-foreground-primary mb-5 sm:mb-6">
           Create DCA
         </h2>
         <CreateDCA />
@@ -108,7 +108,7 @@ function Dashboard() {
 
       <div>
         <p className="overline mb-2">Your Strategies</p>
-        <h2 className="text-h3 sm:text-h2 font-serif text-foreground-primary mb-5 sm:mb-6">
+        <h2 className="text-h3 sm:text-h2 text-foreground-primary mb-5 sm:mb-6">
           Active DCAs
         </h2>
         <MyDCAs />
@@ -121,12 +121,12 @@ function CalculatorPage() {
   return <DCACalculator />;
 }
 
-function AdminPage() {
+function ProtocolPage() {
   return (
     <div className="max-w-4xl">
       <p className="overline mb-2">Protocol Management</p>
-      <h2 className="text-h2 font-serif text-foreground-primary mb-6">
-        Admin Panel
+      <h2 className="text-h2 text-foreground-primary mb-6">
+        Protocol
       </h2>
       <Admin />
     </div>
@@ -203,7 +203,7 @@ function AppContent() {
           <Route path="/" component={LandingPage} />
           <Route path="/dca" component={Dashboard} />
           <Route path="/calculator" component={CalculatorPage} />
-          <Route path="/admin" component={AdminPage} />
+          <Route path="/protocol" component={ProtocolPage} />
         </Switch>
       </main>
 

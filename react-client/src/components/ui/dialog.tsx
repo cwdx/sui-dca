@@ -103,7 +103,7 @@ function DialogTitle({
   return (
     <h2
       className={cn(
-        "font-serif text-xl font-medium text-foreground-primary",
+        "text-xl font-medium text-foreground-primary",
         className,
       )}
       {...props}

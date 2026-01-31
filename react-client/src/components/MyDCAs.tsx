@@ -228,7 +228,7 @@ export function MyDCAs() {
           <div className="w-16 h-16 rounded-full bg-background-tertiary mx-auto mb-4 flex items-center justify-center">
             <Zap className="w-8 h-8 text-foreground-muted" />
           </div>
-          <p className="text-lg font-serif text-foreground-primary mb-2">
+          <p className="text-lg text-foreground-primary mb-2">
             Connect your wallet
           </p>
           <p className="text-sm text-foreground-muted max-w-sm mx-auto mb-6">
@@ -270,7 +270,7 @@ export function MyDCAs() {
           <div className="w-16 h-16 rounded-full bg-background-tertiary mx-auto mb-4 flex items-center justify-center">
             <Zap className="w-8 h-8 text-foreground-muted" />
           </div>
-          <p className="text-lg font-serif text-foreground-primary mb-2">
+          <p className="text-lg text-foreground-primary mb-2">
             No DCA strategies yet
           </p>
           <p className="text-sm text-foreground-muted max-w-sm mx-auto">
@@ -418,11 +418,11 @@ function DCACard({ dca }: { dca: DCAAccount }) {
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-serif text-lg text-foreground-primary">
+                <span className="text-lg text-foreground-primary">
                   {inputToken?.symbol || "?"}
                 </span>
                 <ArrowRight className="w-4 h-4 text-foreground-muted" />
-                <span className="font-serif text-lg text-foreground-primary">
+                <span className="text-lg text-foreground-primary">
                   {outputToken?.symbol || "?"}
                 </span>
               </div>

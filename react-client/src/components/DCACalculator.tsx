@@ -142,7 +142,7 @@ export function DCACalculator() {
       {/* Header */}
       <div>
         <p className="overline mb-2">Historical Backtest</p>
-        <h1 className="text-h2 font-serif text-foreground-primary">
+        <h1 className="text-h2 text-foreground-primary">
           DCA Calculator
         </h1>
         <p className="text-foreground-secondary mt-2">
@@ -505,7 +505,7 @@ export function DCACalculator() {
             <CardContent className="py-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-serif text-lg text-foreground-primary">
+                  <p className="text-lg text-foreground-primary">
                     Ready to start your DCA?
                   </p>
                   <p className="text-sm text-foreground-secondary mt-1">
