@@ -262,32 +262,32 @@ function HistoricalStats() {
 export function Landing() {
   return (
     <div className="space-y-20 sm:space-y-32">
-      {/* Hero Section */}
+      {/* Hero Section - Full bleed like Ondo */}
       <section
-        className="relative bg-cover bg-center bg-no-repeat"
+        className="-mx-4 sm:-mx-6 lg:-mx-8 bg-cover bg-center bg-no-repeat"
         style={{
-          backgroundImage: `linear-gradient(to bottom, rgba(255,255,255,0.85), rgba(255,255,255,0.7), rgba(255,255,255,1)), url('https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=1920&q=80')`
+          backgroundImage: `linear-gradient(to bottom, rgba(10,10,10,0.7), rgba(10,10,10,0.8)), url('https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=1920&q=80')`
         }}
       >
-        <div className="text-center py-16 sm:py-24 max-w-3xl mx-auto px-4">
-          <h1 className="text-h1 sm:text-display text-foreground-primary mb-6">
+        <div className="text-center py-20 sm:py-32 max-w-3xl mx-auto px-4">
+          <h1 className="text-h1 sm:text-display text-white mb-6">
             Dollar Cost Averaging,
             <br />
             Made Simple
           </h1>
-          <p className="text-body sm:text-body-lg text-foreground-secondary mb-10 max-w-xl mx-auto">
+          <p className="text-body sm:text-body-lg text-white/80 mb-10 max-w-xl mx-auto">
             Automate your crypto investments with trustless, oracle-powered DCA
             strategies on Sui blockchain.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
             <Link href="/dca">
-              <Button className="gap-2 w-full sm:w-auto">
+              <Button className="gap-2 w-full sm:w-auto bg-white text-accent hover:bg-white/90">
                 <Zap className="w-4 h-4" />
                 Start DCA
               </Button>
             </Link>
             <Link href="/calculator">
-              <Button variant="secondary" className="gap-2 w-full sm:w-auto">
+              <Button variant="secondary" className="gap-2 w-full sm:w-auto border-white/30 text-white hover:bg-white/10">
                 <BarChart3 className="w-4 h-4" />
                 Try Calculator
               </Button>
