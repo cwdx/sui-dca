@@ -188,9 +188,9 @@ export function CreateDCA() {
     return TOKENS.SUI;
   });
 
-  // Amount per order
+  // Amount per order (default to 10)
   const [amountPerOrder, setAmountPerOrder] = useState(
-    () => urlParams.amount || "",
+    () => urlParams.amount || "10",
   );
   const [numOrders, setNumOrders] = useState(() => urlParams.orders || "10");
 
