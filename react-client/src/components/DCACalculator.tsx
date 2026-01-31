@@ -135,7 +135,7 @@ export function DCACalculator() {
 
   // Deep link to create real DCA (dashboard with params)
   const basePath = import.meta.env.BASE_URL || "/";
-  const createDCALink = `${basePath}?input=${inputToken.symbol}&output=${outputToken.symbol}&amount=${amountPerTrade}&interval=${interval}`;
+  const createDCALink = `${basePath}dca?input=${inputToken.symbol}&output=${outputToken.symbol}&amount=${amountPerTrade}&interval=${interval}`;
 
   return (
     <div className="space-y-8">

@@ -171,13 +171,16 @@ export function calculateBacktest(
     const price = findClosestPrice(prices, tradeTime);
     if (!price || price.price <= 0) continue;
 
-    // DCA trade
-    const tokensThisTrade = amountPerTrade / price.price;
+    // DCA trade: price.price is exchange rate (output tokens per input token)
+    // e.g., for USDC→ETH: price.price = USDC_USD/ETH_USD ≈ 0.000333 ETH per USDC
+    const tokensThisTrade = amountPerTrade * price.price;
     totalInvested += amountPerTrade;
     tokensAcquired += tokensThisTrade;
 
-    const avgPrice = totalInvested / tokensAcquired;
-    const dcaValue = tokensAcquired * currentPrice;
+    // avgPrice is input per output (e.g., USDC per ETH)
+    const avgPrice = tokensAcquired > 0 ? totalInvested / tokensAcquired : 0;
+    // dcaValue is USD value: tokens * (1/exchange_rate) = tokens / exchange_rate
+    const dcaValue = currentPrice > 0 ? tokensAcquired / currentPrice : 0;
 
     trades.push({
       date: new Date(tradeTime).toLocaleDateString("en-US", {
@@ -196,7 +199,8 @@ export function calculateBacktest(
 
   if (trades.length === 0) return null;
 
-  const finalDcaValue = tokensAcquired * currentPrice;
+  // finalDcaValue is USD value: tokens / exchange_rate
+  const finalDcaValue = currentPrice > 0 ? tokensAcquired / currentPrice : 0;
 
   return {
     totalInvested,

@@ -255,7 +255,8 @@ export function CreateDCA() {
 
     const search = params.toString();
     const basePath = import.meta.env.BASE_URL || "/";
-    const newUrl = search ? `${basePath}?${search}` : basePath;
+    const dcaPath = `${basePath}dca`;
+    const newUrl = search ? `${dcaPath}?${search}` : dcaPath;
     // Only update if different to avoid infinite loops
     const currentSearch = window.location.search;
     if (`?${search}` !== currentSearch && (search || currentSearch)) {

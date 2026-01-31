@@ -1,11 +1,12 @@
 import { ConnectButton, useCurrentAccount } from "@mysten/dapp-kit";
-import { Calculator, ExternalLink, Activity, Wallet, Menu, X } from "lucide-react";
+import { ExternalLink, Activity, Wallet, Menu, X } from "lucide-react";
 import { useState } from "react";
 import { Link, Route, Router, Switch, useLocation } from "wouter";
 import { AccountMenu } from "@/components/AccountMenu";
 import { Admin } from "@/components/Admin";
 import { CreateDCA } from "@/components/CreateDCA";
 import { DCACalculator } from "@/components/DCACalculator";
+import { Landing } from "@/components/Landing";
 import { MyDCAs } from "@/components/MyDCAs";
 import { Toaster } from "@/components/Toaster";
 import { Button } from "@/components/ui";
@@ -57,7 +58,7 @@ function Header() {
 
           {/* Desktop nav */}
           <nav className="hidden md:flex items-center gap-1">
-            <NavLink href="/">Dashboard</NavLink>
+            <NavLink href="/dca">Dashboard</NavLink>
             <NavLink href="/calculator">Calculator</NavLink>
             <NavLink href="/admin">Admin</NavLink>
           </nav>
@@ -81,7 +82,7 @@ function Header() {
       {/* Mobile nav */}
       {mobileMenuOpen && (
         <nav className="md:hidden border-t border-border px-4 py-3 flex flex-col gap-1 bg-background-primary">
-          <NavLink href="/">Dashboard</NavLink>
+          <NavLink href="/dca">Dashboard</NavLink>
           <NavLink href="/calculator">Calculator</NavLink>
           <NavLink href="/admin">Admin</NavLink>
         </nav>
@@ -90,54 +91,8 @@ function Header() {
   );
 }
 
-function Landing() {
-  return (
-    <div className="text-center py-16 sm:py-24 max-w-2xl mx-auto">
-      <p className="overline mb-4">Automated Investing on Sui</p>
-      <h1 className="text-h1 sm:text-display font-serif text-foreground-primary mb-6">
-        Dollar Cost Averaging,
-        <br />
-        Made Simple
-      </h1>
-      <p className="text-body sm:text-body-lg text-foreground-secondary mb-10 max-w-lg mx-auto px-4">
-        Automate your crypto investments with trustless, oracle-powered DCA
-        strategies on Sui blockchain.
-      </p>
-      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center px-4">
-        <ConnectButton />
-        <Link href="/calculator">
-          <Button variant="secondary" className="gap-2 w-full sm:w-auto">
-            <Calculator className="w-4 h-4" />
-            Try Calculator
-          </Button>
-        </Link>
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 sm:gap-10 mt-16 sm:mt-24 text-left px-4">
-        <div>
-          <h3 className="text-lg font-serif font-medium mb-2">Oracle-Powered</h3>
-          <p className="text-foreground-tertiary text-sm leading-relaxed">
-            Pyth Network oracles ensure fair pricing on every trade with
-            slippage protection.
-          </p>
-        </div>
-        <div>
-          <h3 className="text-lg font-serif font-medium mb-2">Fully Automated</h3>
-          <p className="text-foreground-tertiary text-sm leading-relaxed">
-            Set your schedule and forget. Permissionless executors trigger your
-            trades on time.
-          </p>
-        </div>
-        <div>
-          <h3 className="text-lg font-serif font-medium mb-2">Non-Custodial</h3>
-          <p className="text-foreground-tertiary text-sm leading-relaxed">
-            Your funds stay in your DCA account. Cancel anytime and withdraw
-            instantly.
-          </p>
-        </div>
-      </div>
-    </div>
-  );
+function LandingPage() {
+  return <Landing />;
 }
 
 function Dashboard() {
@@ -245,7 +200,8 @@ function AppContent() {
 
       <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 w-full">
         <Switch>
-          <Route path="/" component={Dashboard} />
+          <Route path="/" component={LandingPage} />
+          <Route path="/dca" component={Dashboard} />
           <Route path="/calculator" component={CalculatorPage} />
           <Route path="/admin" component={AdminPage} />
         </Switch>
