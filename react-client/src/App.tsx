@@ -1,7 +1,7 @@
 import { ConnectButton, useCurrentAccount } from "@mysten/dapp-kit";
 import { ExternalLink, Activity, Wallet, Menu, X } from "lucide-react";
 import { useState } from "react";
-import { Link, Route, Router, Switch, useLocation } from "wouter";
+import { Link, Redirect, Route, Router, Switch, useLocation } from "wouter";
 import { AccountMenu } from "@/components/AccountMenu";
 import { Admin } from "@/components/Admin";
 import { CreateDCA } from "@/components/CreateDCA";
@@ -58,7 +58,8 @@ function Header() {
 
           {/* Desktop nav */}
           <nav className="hidden md:flex items-center gap-1">
-            <NavLink href="/dca">Dashboard</NavLink>
+            <NavLink href="/">Dashboard</NavLink>
+            <NavLink href="/dca">DCA</NavLink>
             <NavLink href="/calculator">Calculator</NavLink>
             <NavLink href="/protocol">Protocol</NavLink>
           </nav>
@@ -82,7 +83,8 @@ function Header() {
       {/* Mobile nav */}
       {mobileMenuOpen && (
         <nav className="md:hidden border-t border-border px-4 py-3 flex flex-col gap-1 bg-background-primary">
-          <NavLink href="/dca">Dashboard</NavLink>
+          <NavLink href="/">Dashboard</NavLink>
+          <NavLink href="/dca">DCA</NavLink>
           <NavLink href="/calculator">Calculator</NavLink>
           <NavLink href="/protocol">Protocol</NavLink>
         </nav>
@@ -201,6 +203,9 @@ function AppContent() {
       <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 w-full">
         <Switch>
           <Route path="/" component={LandingPage} />
+          <Route path="/dashboard">
+            <Redirect to="/" />
+          </Route>
           <Route path="/dca" component={Dashboard} />
           <Route path="/calculator" component={CalculatorPage} />
           <Route path="/protocol" component={ProtocolPage} />
