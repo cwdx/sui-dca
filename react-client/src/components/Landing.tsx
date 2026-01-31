@@ -263,17 +263,12 @@ export function Landing() {
   return (
     <div className="space-y-20 sm:space-y-32">
       {/* Hero Section */}
-      <section className="relative">
-        {/* Background image - Unsplash */}
-        <div className="absolute inset-0 -z-10 overflow-hidden">
-          <img
-            src="https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=1920&q=80"
-            alt=""
-            className="w-full h-full object-cover opacity-20"
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-background-primary/80 via-background-primary/60 to-background-primary" />
-        </div>
-
+      <section
+        className="relative bg-cover bg-center bg-no-repeat"
+        style={{
+          backgroundImage: `linear-gradient(to bottom, rgba(255,255,255,0.85), rgba(255,255,255,0.7), rgba(255,255,255,1)), url('https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=1920&q=80')`
+        }}
+      >
         <div className="text-center py-16 sm:py-24 max-w-3xl mx-auto px-4">
           <p className="overline mb-4">Automated Investing on Sui</p>
           <h1 className="text-h1 sm:text-display text-foreground-primary mb-6">
