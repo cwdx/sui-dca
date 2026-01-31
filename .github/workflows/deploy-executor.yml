@@ -1,0 +1,134 @@
+name: Deploy Executor to Cloud Run
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'executor-bun/**'
+      - 'scripts/**'
+      - '.github/workflows/deploy-executor.yml'
+  workflow_dispatch: # Allow manual trigger
+
+env:
+  PROJECT_ID: agio-digital-develop
+  REGION: us-central1
+  SERVICE_NAME: dca-executor
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Google Auth
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+
+      - name: Configure Docker for GCR
+        run: gcloud auth configure-docker --quiet
+
+      - name: Build and Push Container
+        working-directory: executor-bun
+        run: |
+          gcloud builds submit \
+            --project=${{ env.PROJECT_ID }} \
+            --tag=gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }} \
+            --timeout=600s
+
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy ${{ env.SERVICE_NAME }} \
+            --project=${{ env.PROJECT_ID }} \
+            --region=${{ env.REGION }} \
+            --image=gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }} \
+            --platform=managed \
+            --allow-unauthenticated \
+            --memory=512Mi \
+            --cpu=1 \
+            --timeout=300s \
+            --min-instances=0 \
+            --max-instances=3 \
+            --set-env-vars="SUI_NETWORK=mainnet" \
+            --set-env-vars="DCA_PACKAGE_ID=0x19852a2e3d8caf1fbc7452d5290d6f71b3df573b7ab3252183756491c45047b4" \
+            --set-env-vars="GLOBAL_CONFIG_ID=0xe9f6adaea71cee4a1d4a3e48e7a42be8d2aa66f1f21e02ffa38e447d6bf3c13a" \
+            --set-env-vars="FEE_TRACKER_ID=0x5a840524e2c1cad27da155c6cdeff4652b76bcef1c7aad6f1ce51710e8397057" \
+            --set-env-vars="PRICE_FEED_REGISTRY_ID=0xdb8054678f011b6a9d5dbe72b92817bfa904c00729b9c64cc0158ebc2c27d0e0" \
+            --set-secrets="EXECUTOR_PRIVATE_KEY=DCA_EXECUTOR_PRIVATE_KEY:latest"
+
+      - name: Clean up old revisions
+        run: |
+          REVISIONS=$(gcloud run revisions list \
+            --project=${{ env.PROJECT_ID }} \
+            --region=${{ env.REGION }} \
+            --service=${{ env.SERVICE_NAME }} \
+            --format="value(name)" \
+            --sort-by="~creationTimestamp" | tail -n +2)
+
+          for rev in $REVISIONS; do
+            echo "Deleting $rev..."
+            gcloud run revisions delete "$rev" \
+              --project=${{ env.PROJECT_ID }} \
+              --region=${{ env.REGION }} \
+              --quiet || true
+          done
+
+      - name: Setup Cloud Scheduler (if not exists)
+        run: |
+          SERVICE_URL=$(gcloud run services describe ${{ env.SERVICE_NAME }} \
+            --project=${{ env.PROJECT_ID }} \
+            --region=${{ env.REGION }} \
+            --format="value(status.url)")
+
+          # Check if job exists
+          if gcloud scheduler jobs describe dca-executor-trigger \
+            --project=${{ env.PROJECT_ID }} \
+            --location=${{ env.REGION }} >/dev/null 2>&1; then
+            echo "Updating scheduler job..."
+            gcloud scheduler jobs update http dca-executor-trigger \
+              --project=${{ env.PROJECT_ID }} \
+              --location=${{ env.REGION }} \
+              --schedule="* * * * *" \
+              --uri="${SERVICE_URL}/execute" \
+              --http-method=POST \
+              --headers="Content-Type=application/json" \
+              --message-body='{"limit": 10}' \
+              --time-zone="UTC" \
+              --attempt-deadline=320s
+          else
+            echo "Creating scheduler job..."
+            gcloud scheduler jobs create http dca-executor-trigger \
+              --project=${{ env.PROJECT_ID }} \
+              --location=${{ env.REGION }} \
+              --schedule="* * * * *" \
+              --uri="${SERVICE_URL}/execute" \
+              --http-method=POST \
+              --headers="Content-Type=application/json" \
+              --message-body='{"limit": 10}' \
+              --time-zone="UTC" \
+              --attempt-deadline=320s
+          fi
+
+      - name: Print deployment info
+        run: |
+          SERVICE_URL=$(gcloud run services describe ${{ env.SERVICE_NAME }} \
+            --project=${{ env.PROJECT_ID }} \
+            --region=${{ env.REGION }} \
+            --format="value(status.url)")
+
+          echo "Deployment complete!"
+          echo "Service URL: $SERVICE_URL"
+          echo "Health: $SERVICE_URL/health"
+          echo "Scheduler: Every 1 minute"
